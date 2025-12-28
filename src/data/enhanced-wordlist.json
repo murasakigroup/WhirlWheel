@@ -1,9 +1,9 @@
 {
   "metadata": {
     "version": "2.0",
-    "generatedAt": "2025-12-28T22:45:03.128Z",
+    "generatedAt": "2025-12-28T22:50:12.171Z",
     "minSubWords": 3,
-    "description": "Enhanced wordlist with pre-computed sub-words, fun scores, and naughty word filtering"
+    "description": "Enhanced wordlist with pre-computed sub-words and fun scores"
   },
   "wordsByLength": {
     "3": [
@@ -70942,21 +70942,5 @@
       "subWordCount": 81,
       "funScore": 0.74
     }
-  },
-  "naughtyWords": [
-    "ASS",
-    "BUTT",
-    "BUTTS",
-    "CRAP",
-    "DAMN",
-    "DANG",
-    "DARN",
-    "FART",
-    "HECK",
-    "HELL",
-    "JEEZ",
-    "POOP",
-    "PISS",
-    "SUCK"
-  ]
+  }
 }

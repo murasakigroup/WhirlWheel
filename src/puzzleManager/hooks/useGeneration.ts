@@ -25,7 +25,6 @@ interface EnhancedWordlist {
   };
   wordsByLength: Record<string, string[]>;
   words: Record<string, EnhancedWordData>;
-  naughtyWords: string[];
 }
 
 const enhancedWordlist = enhancedWordlistData as EnhancedWordlist;
@@ -231,5 +230,5 @@ export function useGeneration() {
     [hashGrid],
   );
 
-  return { generate, naughtyWords: enhancedWordlist.naughtyWords };
+  return { generate };
 }

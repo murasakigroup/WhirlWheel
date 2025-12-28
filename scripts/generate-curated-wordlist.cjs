@@ -254,17 +254,18 @@ function main() {
   console.log("");
 
   // Create output structure
+  // NOTE: naughtyWords excluded from bundle to avoid app store issues
+  // Naughty word filtering happens at generation time only
   const output = {
     metadata: {
       version: "2.0",
       generatedAt: new Date().toISOString(),
       minSubWords: MIN_SUBWORDS,
       description:
-        "Enhanced wordlist with pre-computed sub-words, fun scores, and naughty word filtering",
+        "Enhanced wordlist with pre-computed sub-words and fun scores",
     },
     wordsByLength: wordsByLength,
     words: words,
-    naughtyWords: easterEggWords,
   };
 
   // Write output
