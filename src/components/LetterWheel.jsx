@@ -1,3 +1,4 @@
+import { useRef, useState, useEffect } from "react";
 import "./LetterWheel.css";
 
 /**
@@ -7,9 +8,25 @@ import "./LetterWheel.css";
  * @param {function} onLetterClick - Callback when a letter is clicked
  */
 function LetterWheel({ letters, selectedLetters, onLetterClick }) {
-  const radius = 100; // pixels from center (reduced for smaller screen)
+  const containerRef = useRef(null);
+  const [radius, setRadius] = useState(80);
+
+  // Update radius based on container size
+  useEffect(() => {
+    const updateRadius = () => {
+      if (containerRef.current) {
+        const containerSize = containerRef.current.offsetWidth;
+        // Radius is ~38% of container to position letters nicely within the circle
+        setRadius(containerSize * 0.38);
+      }
+    };
+
+    updateRadius();
+    window.addEventListener("resize", updateRadius);
+    return () => window.removeEventListener("resize", updateRadius);
+  }, []);
+
   const angleStep = (2 * Math.PI) / letters.length;
-  const buttonRadius = 27.5; // Half of button width (55px / 2)
 
   // Calculate positions for each letter
   const letterPositions = letters.map((letter, index) => {
@@ -33,11 +50,17 @@ function LetterWheel({ letters, selectedLetters, onLetterClick }) {
     });
   }
 
+  // Calculate viewBox based on radius to keep SVG properly scaled
+  const svgSize = radius + 50;
+
   return (
     <div className="letter-wheel">
-      <div className="wheel-container">
+      <div className="wheel-container" ref={containerRef}>
         {/* SVG for drawing connection lines */}
-        <svg className="connection-lines" viewBox="-150 -150 300 300">
+        <svg
+          className="connection-lines"
+          viewBox={`${-svgSize} ${-svgSize} ${svgSize * 2} ${svgSize * 2}`}
+        >
           {lines.map((line) => (
             <line
               key={line.key}

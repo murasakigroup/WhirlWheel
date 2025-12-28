@@ -1,38 +1,43 @@
 import { useState, useEffect } from "react";
 import "./App.css";
 import { puzzles } from "./data/puzzles";
-import { isValidPuzzleWord, isAlreadyFound } from "./utils/wordValidator";
+import { isAlreadyFound } from "./utils/wordValidator";
 import LetterWheel from "./components/LetterWheel";
 import WordDisplay from "./components/WordDisplay";
-import FoundWordsList from "./components/FoundWordsList";
-import GameControls from "./components/GameControls";
+import CrosswordGrid from "./components/CrosswordGrid";
 
 function App() {
   // Game state
   const [currentPuzzleIndex, setCurrentPuzzleIndex] = useState(0);
   const [currentSelection, setCurrentSelection] = useState([]);
   const [foundWords, setFoundWords] = useState([]);
+  const [bonusWordsFound, setBonusWordsFound] = useState([]);
   const [feedback, setFeedback] = useState(null);
   const [shuffledLetters, setShuffledLetters] = useState([]);
 
   const currentPuzzle = puzzles[currentPuzzleIndex];
 
+  // Get all valid words (grid words + bonus words)
+  const allValidWords = [
+    ...currentPuzzle.gridWords.map((w) => w.word.toUpperCase()),
+    ...(currentPuzzle.bonusWords || []).map((w) => w.toUpperCase()),
+  ];
+
   // Initialize shuffled letters when puzzle changes
   useEffect(() => {
     setShuffledLetters([...currentPuzzle.letters]);
     setFoundWords([]);
+    setBonusWordsFound([]);
     setCurrentSelection([]);
     setFeedback(null);
   }, [currentPuzzleIndex]);
 
   // Handle letter click
   const handleLetterClick = (letter, index) => {
-    // Check if this specific letter (by index) is already selected
-    const letterWithIndex = `${letter}-${index}`;
     const alreadySelected = currentSelection.some((sel) => sel.index === index);
 
     if (alreadySelected) {
-      return; // Don't allow selecting the same letter twice
+      return;
     }
 
     setCurrentSelection([...currentSelection, { letter, index }]);
@@ -41,22 +46,36 @@ function App() {
 
   // Handle submit
   const handleSubmit = () => {
-    const word = currentSelection.map((sel) => sel.letter).join("");
+    const word = currentSelection
+      .map((sel) => sel.letter)
+      .join("")
+      .toUpperCase();
 
-    if (isAlreadyFound(word, foundWords)) {
+    // Check if already found
+    if (isAlreadyFound(word, [...foundWords, ...bonusWordsFound])) {
       setFeedback("already");
-      setCurrentSelection([]); // Clear selection
+      setCurrentSelection([]);
       setTimeout(() => setFeedback(null), 2000);
       return;
     }
 
-    if (isValidPuzzleWord(word, currentPuzzle.words)) {
-      setFoundWords([...foundWords, word.toUpperCase()]);
-      setFeedback("correct");
-      setCurrentSelection([]); // Clear selection
+    // Check if it's a grid word
+    const isGridWord = currentPuzzle.gridWords.some(
+      (gw) => gw.word.toUpperCase() === word,
+    );
 
-      // Check if puzzle is complete
-      if (foundWords.length + 1 === currentPuzzle.words.length) {
+    // Check if it's a bonus word
+    const isBonusWord = (currentPuzzle.bonusWords || []).some(
+      (bw) => bw.toUpperCase() === word,
+    );
+
+    if (isGridWord) {
+      setFoundWords([...foundWords, word]);
+      setFeedback("correct");
+      setCurrentSelection([]);
+
+      // Check if puzzle is complete (all grid words found)
+      if (foundWords.length + 1 === currentPuzzle.gridWords.length) {
         setTimeout(() => {
           if (currentPuzzleIndex < puzzles.length - 1) {
             setCurrentPuzzleIndex(currentPuzzleIndex + 1);
@@ -65,9 +84,13 @@ function App() {
           }
         }, 2000);
       }
+    } else if (isBonusWord) {
+      setBonusWordsFound([...bonusWordsFound, word]);
+      setFeedback("bonus");
+      setCurrentSelection([]);
     } else {
       setFeedback("incorrect");
-      setCurrentSelection([]); // Clear selection even for incorrect words
+      setCurrentSelection([]);
     }
 
     setTimeout(() => setFeedback(null), 2000);
@@ -87,8 +110,8 @@ function App() {
       [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
     setShuffledLetters(shuffled);
-    setCurrentSelection([]); // Clear selection when shuffling
-    setFeedback(null); // Clear any feedback messages
+    setCurrentSelection([]);
+    setFeedback(null);
   };
 
   return (
@@ -101,40 +124,64 @@ function App() {
         backgroundRepeat: "no-repeat",
       }}
     >
-      <header>
-        <h1>Word Game</h1>
-        <p className="level-indicator">
-          Level {currentPuzzleIndex + 1} of {puzzles.length}
-        </p>
-      </header>
-
       {feedback && (
         <div className={`feedback ${feedback}`}>
-          {feedback === "correct" && "✓ Correct!"}
-          {feedback === "incorrect" && "✗ Not a valid word"}
+          {feedback === "correct" && "Correct!"}
+          {feedback === "incorrect" && "Not a word"}
           {feedback === "already" && "Already found!"}
+          {feedback === "bonus" && "Bonus word!"}
         </div>
       )}
 
+      {/* Crossword Grid at top */}
+      <CrosswordGrid
+        gridWords={currentPuzzle.gridWords}
+        foundWords={foundWords}
+      />
+
+      {/* Current word display */}
       <WordDisplay selectedLetters={currentSelection} />
 
-      <LetterWheel
-        letters={shuffledLetters}
-        selectedLetters={currentSelection}
-        onLetterClick={handleLetterClick}
-      />
+      {/* Letter wheel section with side buttons */}
+      <div className="wheel-section">
+        <button
+          className="side-button shuffle-btn"
+          onClick={handleShuffle}
+          title="Shuffle"
+        >
+          <span>⟳</span>
+        </button>
 
-      <GameControls
-        onSubmit={handleSubmit}
-        onClear={handleClear}
-        onShuffle={handleShuffle}
-        canSubmit={currentSelection.length >= 3}
-      />
+        <LetterWheel
+          letters={shuffledLetters}
+          selectedLetters={currentSelection}
+          onLetterClick={handleLetterClick}
+        />
 
-      <FoundWordsList
-        foundWords={foundWords}
-        totalWords={currentPuzzle.words.length}
-      />
+        <button
+          className="side-button clear-btn"
+          onClick={handleClear}
+          title="Clear"
+        >
+          <span>✕</span>
+        </button>
+      </div>
+
+      {/* Submit button */}
+      <div className="bottom-controls">
+        <button
+          className="submit-button"
+          onClick={handleSubmit}
+          disabled={currentSelection.length < 2}
+        >
+          Submit
+        </button>
+        <p className="level-indicator">
+          Level {currentPuzzleIndex + 1} • {foundWords.length}/
+          {currentPuzzle.gridWords.length} words
+          {bonusWordsFound.length > 0 && ` • ${bonusWordsFound.length} bonus`}
+        </p>
+      </div>
     </div>
   );
 }

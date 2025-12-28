@@ -1,0 +1,69 @@
+.crossword-grid {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    min-height: 0;
+}
+
+.grid-container {
+    display: grid;
+    gap: 3px;
+    padding: 5px;
+    max-width: min(90vw, 350px);
+    width: 100%;
+}
+
+.grid-cell {
+    aspect-ratio: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    min-width: 0;
+}
+
+.grid-cell.empty {
+    background: transparent;
+    border: none;
+}
+
+.grid-cell.has-letter {
+    background: rgba(255, 255, 255, 0.85);
+    border: 2px solid rgba(255, 255, 255, 0.9);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.grid-cell.found {
+    background: linear-gradient(145deg, #4caf50, #8bc34a);
+    border: 2px solid rgba(255, 255, 255, 0.8);
+    box-shadow:
+        0 3px 10px rgba(76, 175, 80, 0.4),
+        inset 0 1px 2px rgba(255, 255, 255, 0.3);
+    animation: cellReveal 0.4s ease;
+}
+
+.grid-cell .letter {
+    font-size: clamp(14px, 4vw, 24px);
+    font-weight: bold;
+    color: white;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4);
+    text-transform: uppercase;
+}
+
+@keyframes cellReveal {
+    0% {
+        transform: scale(0.5) rotateY(90deg);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.1) rotateY(0deg);
+    }
+    100% {
+        transform: scale(1) rotateY(0deg);
+        opacity: 1;
+    }
+}

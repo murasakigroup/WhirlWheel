@@ -1,24 +1,28 @@
 .found-words-list {
-    padding: 10px;
-    max-width: 400px;
+    padding: 3px 8px;
+    max-width: min(400px, 90vw);
+    width: 100%;
     margin: 0 auto;
+    box-sizing: border-box;
 }
 
 .found-words-list h3 {
     text-align: center;
     color: white;
-    margin-bottom: 8px;
+    margin-bottom: 3px;
     margin-top: 0;
-    font-size: 18px;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    font-size: clamp(12px, 3vw, 16px);
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
 }
 
 .words-container {
     background: rgba(255, 255, 255, 0.95);
     border: 2px solid rgba(255, 255, 255, 0.5);
-    border-radius: 15px;
-    padding: 15px;
-    min-height: 80px;
+    border-radius: 12px;
+    padding: 8px;
+    min-height: 50px;
+    max-height: 100px;
+    overflow-y: auto;
     box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
     backdrop-filter: blur(10px);
 }
@@ -27,7 +31,7 @@
     text-align: center;
     color: #999;
     font-style: italic;
-    font-size: 14px;
+    font-size: clamp(11px, 2.5vw, 14px);
     margin: 0;
 }
 
@@ -37,20 +41,20 @@
     margin: 0;
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 6px;
     justify-content: center;
 }
 
 .found-word {
     background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
     color: white;
-    padding: 6px 14px;
-    border-radius: 20px;
+    padding: 4px 10px;
+    border-radius: 15px;
     font-weight: bold;
-    font-size: 13px;
+    font-size: clamp(10px, 2.5vw, 13px);
     animation: popIn 0.4s ease;
     box-shadow: 0 3px 8px rgba(17, 153, 142, 0.4);
-    letter-spacing: 1px;
+    letter-spacing: 0.5px;
 }
 
 @keyframes popIn {

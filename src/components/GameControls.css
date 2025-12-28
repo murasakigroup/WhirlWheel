@@ -1,13 +1,13 @@
 .game-controls {
     display: flex;
     justify-content: center;
-    gap: 10px;
-    padding: 10px;
+    gap: 6px;
+    padding: 3px;
 }
 
 .control-button {
-    padding: 10px 24px;
-    font-size: 15px;
+    padding: 6px 12px;
+    font-size: clamp(11px, 2.8vw, 13px);
     font-weight: bold;
     border: none;
     border-radius: 25px;
@@ -15,7 +15,7 @@
     transition: all 0.3s ease;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 0.5px;
 }
 
 .control-button:hover {

@@ -1,14 +1,20 @@
 .app {
-    max-width: 1200px;
+    width: 100%;
+    max-width: 100vw;
     margin: 0 auto;
     padding: 10px;
     text-align: center;
-    min-height: 100vh;
+    height: 100vh;
+    height: 100dvh;
+    max-height: 100vh;
+    max-height: 100dvh;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
-    justify-content: space-evenly;
+    justify-content: space-between;
     position: relative;
     transition: background-image 0.5s ease-in-out;
+    box-sizing: border-box;
 }
 
 .app::before {
@@ -18,7 +24,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.35);
+    background: rgba(0, 0, 0, 0.3);
     z-index: 0;
 }
 
@@ -27,53 +33,38 @@
     z-index: 1;
 }
 
-header {
-    margin-bottom: 5px;
-}
-
-header h1 {
-    font-size: 36px;
-    color: white;
-    margin-bottom: 5px;
-    margin-top: 0;
-    text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.8);
-    font-family: "Arial Rounded MT Bold", Arial, sans-serif;
-}
-
-.level-indicator {
-    font-size: 16px;
-    color: rgba(255, 255, 255, 0.95);
-    font-weight: bold;
-    margin: 0;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
-}
-
+/* Feedback toast */
 .feedback {
     position: fixed;
     top: 20px;
     left: 50%;
     transform: translateX(-50%);
-    padding: 15px 30px;
-    border-radius: 25px;
-    font-size: 18px;
+    padding: 12px 28px;
+    border-radius: 30px;
+    font-size: clamp(14px, 3.5vw, 18px);
     font-weight: bold;
     z-index: 1000;
     animation: slideDown 0.3s ease;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
 .feedback.correct {
-    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    background: linear-gradient(135deg, #4caf50 0%, #8bc34a 100%);
     color: white;
 }
 
 .feedback.incorrect {
-    background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+    background: linear-gradient(135deg, #f44336 0%, #ff5722 100%);
     color: white;
 }
 
 .feedback.already {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    background: linear-gradient(135deg, #ff9800 0%, #ffc107 100%);
+    color: white;
+}
+
+.feedback.bonus {
+    background: linear-gradient(135deg, #9c27b0 0%, #e91e63 100%);
     color: white;
 }
 
@@ -86,4 +77,103 @@ header h1 {
         opacity: 1;
         transform: translateX(-50%) translateY(0);
     }
+}
+
+/* Wheel section with side buttons */
+.wheel-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    padding: 0 10px;
+}
+
+.side-button {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    font-size: 22px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.2s ease;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.3);
+    flex-shrink: 0;
+}
+
+.side-button:hover {
+    background: rgba(0, 0, 0, 0.7);
+    transform: scale(1.1);
+}
+
+.side-button:active {
+    transform: scale(0.95);
+}
+
+.shuffle-btn {
+    background: rgba(102, 126, 234, 0.7);
+}
+
+.shuffle-btn:hover {
+    background: rgba(102, 126, 234, 0.9);
+}
+
+.clear-btn {
+    background: rgba(244, 67, 54, 0.7);
+}
+
+.clear-btn:hover {
+    background: rgba(244, 67, 54, 0.9);
+}
+
+/* Bottom controls */
+.bottom-controls {
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.submit-button {
+    padding: 14px 50px;
+    font-size: clamp(14px, 3.5vw, 18px);
+    font-weight: bold;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    background: linear-gradient(135deg, #4caf50 0%, #8bc34a 100%);
+    color: white;
+}
+
+.submit-button:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+}
+
+.submit-button:disabled {
+    background: linear-gradient(135deg, #9e9e9e 0%, #bdbdbd 100%);
+    cursor: not-allowed;
+    transform: none;
+    opacity: 0.7;
+}
+
+.submit-button:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.level-indicator {
+    font-size: clamp(12px, 3vw, 14px);
+    color: rgba(255, 255, 255, 0.95);
+    font-weight: 600;
+    margin: 0;
+    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.8);
 }
