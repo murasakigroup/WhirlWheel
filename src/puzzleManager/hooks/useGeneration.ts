@@ -4,7 +4,7 @@
  */
 
 import { useCallback } from "react";
-import { generatePuzzle } from "../../puzzleGenerator";
+import { generatePuzzle, findValidWords } from "../../puzzleGenerator";
 import { usePuzzleHash } from "./usePuzzleHash";
 import type { GenerationRequest, Generation, CuratedPuzzle } from "../types";
 import wordlistData from "../../data/wordlist.json";
@@ -44,6 +44,7 @@ export function useGeneration() {
       const seed =
         request.seed !== undefined ? request.seed : generateRandomSeed();
 
+      console.log("=".repeat(60));
       console.log("[Generation] Starting with:", {
         letters: letters.join(""),
         letterCount: request.letterCount,
@@ -51,6 +52,18 @@ export function useGeneration() {
         minWordCount: request.params.minWordCount,
         maxWordCount: request.params.maxWordCount,
       });
+
+      // Step 1: Find valid words first
+      const validWords = findValidWords(letters, dictionary, {
+        minLength: 3,
+        maxLength: 10,
+      });
+
+      console.log(`\n[Step 1] Found ${validWords.length} valid words:`);
+      console.log(
+        validWords.slice(0, 20).join(", ") +
+          (validWords.length > 20 ? "..." : ""),
+      );
 
       // Generate puzzles
       const result = generatePuzzle(letters, dictionary, {
@@ -60,22 +73,27 @@ export function useGeneration() {
       });
 
       if (!result.success || !result.puzzle || !result.allCandidates) {
-        console.error("[Generation] Failed:", {
+        console.log("\n[Step 2] FAILED to generate puzzle");
+        console.error("[Error Details]", {
           letters: letters.join(""),
+          validWordsFound: validWords.length,
           error: result.error,
           minWordCount: request.params.minWordCount,
           maxWordCount: request.params.maxWordCount,
         });
+        console.log("=".repeat(60));
         throw new Error(
-          `${result.error}\n\nLetters used: ${letters.join("")}\nSeed: ${seed}`,
+          `${result.error}\n\nLetters: ${letters.join("")}\nValid words found: ${validWords.length}\nWords: ${validWords.join(", ")}\nSeed: ${seed}`,
         );
       }
 
-      console.log("[Generation] Success:", {
-        letters: letters.join(""),
-        puzzlesGenerated: result.allCandidates.length,
-        topScore: result.metrics?.overallScore.toFixed(3),
-      });
+      console.log("\n[Step 2] SUCCESS! Generated puzzles");
+      console.log(`Puzzles: ${result.allCandidates.length} candidates`);
+      console.log(`Top score: ${result.metrics?.overallScore.toFixed(4)}`);
+      console.log(
+        `Words in top puzzle: ${result.puzzle.words.map((w) => w.word).join(", ")}`,
+      );
+      console.log("=".repeat(60));
 
       // Convert to CuratedPuzzles with hashes and feedback
       const curatedPuzzles: CuratedPuzzle[] = result.allCandidates.map(
