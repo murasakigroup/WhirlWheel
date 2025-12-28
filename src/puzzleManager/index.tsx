@@ -14,8 +14,14 @@ import { GameBuilder } from "./components/GameBuilder";
 import type { GenerationRequest } from "./types";
 
 export function PuzzleManager() {
-  const { gameData, addGeneration, updateGeneration, autoFill, exportData } =
-    useGameData();
+  const {
+    gameData,
+    addGeneration,
+    updateGeneration,
+    autoFill,
+    exportData,
+    importData,
+  } = useGameData();
   const { generate } = useGeneration();
   const [selectedAreaId, setSelectedAreaId] = useState<string | null>(null);
   const [selectedGenerationId, setSelectedGenerationId] = useState<
@@ -44,6 +50,20 @@ export function PuzzleManager() {
     setShowGameBuilder(true);
     setSelectedAreaId(null);
     setSelectedGenerationId(null);
+  };
+
+  const handleImport = async (file: File) => {
+    try {
+      const text = await file.text();
+      const success = importData(text);
+      if (success) {
+        alert("Data imported successfully!");
+      } else {
+        alert("Failed to import data. Invalid format.");
+      }
+    } catch (error) {
+      alert("Failed to read file: " + (error as Error).message);
+    }
   };
 
   const handleLocationClick = (locationId: string) => {
@@ -179,6 +199,8 @@ export function PuzzleManager() {
       areas={gameData.areas}
       onAreaClick={handleAreaClick}
       onGameBuilder={handleShowGameBuilder}
+      onExport={exportData}
+      onImport={handleImport}
     />
   );
 }

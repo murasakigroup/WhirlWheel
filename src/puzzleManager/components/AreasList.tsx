@@ -10,6 +10,8 @@ interface AreasListProps {
   areas: Area[];
   onAreaClick: (areaId: string) => void;
   onGameBuilder: () => void;
+  onExport: () => void;
+  onImport: (file: File) => void;
 }
 
 // Area emoji map
@@ -26,14 +28,37 @@ export function AreasList({
   areas,
   onAreaClick,
   onGameBuilder,
+  onExport,
+  onImport,
 }: AreasListProps) {
+  const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      onImport(file);
+    }
+  };
+
   return (
     <div style={styles.container}>
       <header style={styles.header}>
         <h1 style={styles.title}>Puzzle Manager</h1>
-        <button onClick={onGameBuilder} style={styles.builderButton}>
-          🎮 Game Builder
-        </button>
+        <div style={styles.headerActions}>
+          <label style={styles.importButton}>
+            📥 Import
+            <input
+              type="file"
+              accept="application/json"
+              onChange={handleImport}
+              style={styles.fileInput}
+            />
+          </label>
+          <button onClick={onExport} style={styles.exportButton}>
+            📤 Export
+          </button>
+          <button onClick={onGameBuilder} style={styles.builderButton}>
+            🎮 Game Builder
+          </button>
+        </div>
       </header>
 
       <div style={styles.areasList}>
@@ -98,6 +123,35 @@ const styles: Record<string, React.CSSProperties> = {
     margin: 0,
     fontSize: "24px",
     fontWeight: "600",
+  },
+  headerActions: {
+    display: "flex",
+    gap: "12px",
+    flexWrap: "wrap",
+  },
+  importButton: {
+    backgroundColor: "#2D2D2D",
+    border: "none",
+    color: "#FFFFFF",
+    padding: "10px 16px",
+    borderRadius: "8px",
+    fontSize: "14px",
+    fontWeight: "600",
+    cursor: "pointer",
+    display: "inline-block",
+  },
+  fileInput: {
+    display: "none",
+  },
+  exportButton: {
+    backgroundColor: "#00B894",
+    border: "none",
+    color: "#FFFFFF",
+    padding: "10px 16px",
+    borderRadius: "8px",
+    fontSize: "14px",
+    fontWeight: "600",
+    cursor: "pointer",
   },
   builderButton: {
     backgroundColor: "#6C5CE7",
