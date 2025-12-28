@@ -5,13 +5,18 @@
 
 import React, { useState } from "react";
 import { useGameData } from "./hooks/useGameData";
+import { useGeneration } from "./hooks/useGeneration";
 import { AreasList } from "./components/AreasList";
 import { AreaDetail } from "./components/AreaDetail";
+import { GenerationModal } from "./components/GenerationModal";
+import type { GenerationRequest } from "./types";
 
 export function PuzzleManager() {
-  const { gameData } = useGameData();
+  const { gameData, addGeneration } = useGameData();
+  const { generate } = useGeneration();
   const [selectedAreaId, setSelectedAreaId] = useState<string | null>(null);
   const [showGenerationModal, setShowGenerationModal] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const handleAreaClick = (areaId: string) => {
     setSelectedAreaId(areaId);
@@ -33,8 +38,21 @@ export function PuzzleManager() {
 
   const handleNewGeneration = () => {
     setShowGenerationModal(true);
-    // TODO: Show Generation Parameters modal
-    console.log("New generation clicked");
+  };
+
+  const handleGenerate = async (request: GenerationRequest) => {
+    setIsGenerating(true);
+    try {
+      const generation = await generate(request);
+      addGeneration(generation);
+      setShowGenerationModal(false);
+      console.log("Generated:", generation);
+    } catch (error) {
+      console.error("Generation failed:", error);
+      alert("Failed to generate puzzles: " + (error as Error).message);
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   // Find selected area and its generations
@@ -47,14 +65,23 @@ export function PuzzleManager() {
 
   if (selectedArea) {
     return (
-      <AreaDetail
-        area={selectedArea}
-        generations={areaGenerations}
-        onBack={handleBack}
-        onLocationClick={handleLocationClick}
-        onGenerationClick={handleGenerationClick}
-        onNewGeneration={handleNewGeneration}
-      />
+      <>
+        <AreaDetail
+          area={selectedArea}
+          generations={areaGenerations}
+          onBack={handleBack}
+          onLocationClick={handleLocationClick}
+          onGenerationClick={handleGenerationClick}
+          onNewGeneration={handleNewGeneration}
+        />
+        {showGenerationModal && (
+          <GenerationModal
+            letterCount={selectedArea.letterCount}
+            onGenerate={handleGenerate}
+            onClose={() => setShowGenerationModal(false)}
+          />
+        )}
+      </>
     );
   }
 
