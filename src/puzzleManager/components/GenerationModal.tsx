@@ -3,7 +3,7 @@
  * Modal for configuring puzzle generation parameters
  */
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import type { GenerationRequest } from "../types";
 import type { GeneratorParams } from "../../puzzleGenerator/types";
 import enhancedWordlistData from "../../data/enhanced-wordlist.json";
@@ -38,22 +38,17 @@ export function GenerationModal({
   onClose,
 }: GenerationModalProps) {
   const [letters, setLetters] = useState(() => getRandomLetters(letterCount));
-  const [useRandomLetters, setUseRandomLetters] = useState(true);
   const [seed, setSeed] = useState(() => String(getRandomSeed()));
-  const [useRandomSeed, setUseRandomSeed] = useState(true);
 
-  // Regenerate random values when toggling back to random mode
-  useEffect(() => {
-    if (useRandomLetters) {
-      setLetters(getRandomLetters(letterCount));
-    }
-  }, [useRandomLetters, letterCount]);
+  // Randomize letters
+  const randomizeLetters = () => {
+    setLetters(getRandomLetters(letterCount));
+  };
 
-  useEffect(() => {
-    if (useRandomSeed) {
-      setSeed(String(getRandomSeed()));
-    }
-  }, [useRandomSeed]);
+  // Randomize seed
+  const randomizeSeed = () => {
+    setSeed(String(getRandomSeed()));
+  };
   const [minWordCount, setMinWordCount] = useState(3);
   const [maxWordCount, setMaxWordCount] = useState(6);
   const [candidatesToGenerate, setCandidatesToGenerate] = useState(10);
@@ -111,30 +106,13 @@ export function GenerationModal({
                 type="text"
                 value={letters}
                 onChange={(e) => setLetters(e.target.value.toUpperCase())}
-                disabled={useRandomLetters}
                 maxLength={letterCount}
-                style={{
-                  ...styles.input,
-                  ...(useRandomLetters ? styles.inputDisabled : {}),
-                }}
+                style={styles.input}
               />
               <button
-                onClick={() => {
-                  setUseRandomLetters(!useRandomLetters);
-                  if (useRandomLetters) {
-                    // Switching to manual, clear the field
-                    setLetters("");
-                  }
-                }}
-                style={{
-                  ...styles.randomButton,
-                  ...(useRandomLetters ? styles.randomButtonActive : {}),
-                }}
-                title={
-                  useRandomLetters
-                    ? "Using random letters (click to enter manually)"
-                    : "Click for random letters"
-                }
+                onClick={randomizeLetters}
+                style={styles.randomButton}
+                title="Generate random letters"
               >
                 🎲
               </button>
@@ -149,29 +127,12 @@ export function GenerationModal({
                 type="number"
                 value={seed}
                 onChange={(e) => setSeed(e.target.value)}
-                disabled={useRandomSeed}
-                style={{
-                  ...styles.input,
-                  ...(useRandomSeed ? styles.inputDisabled : {}),
-                }}
+                style={styles.input}
               />
               <button
-                onClick={() => {
-                  setUseRandomSeed(!useRandomSeed);
-                  if (useRandomSeed) {
-                    // Switching to manual, clear the field
-                    setSeed("");
-                  }
-                }}
-                style={{
-                  ...styles.randomButton,
-                  ...(useRandomSeed ? styles.randomButtonActive : {}),
-                }}
-                title={
-                  useRandomSeed
-                    ? "Using random seed (click to enter manually)"
-                    : "Click for random seed"
-                }
+                onClick={randomizeSeed}
+                style={styles.randomButton}
+                title="Generate random seed"
               >
                 🎲
               </button>
@@ -424,26 +385,13 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: "14px",
     fontFamily: "system-ui",
   },
-  inputDisabled: {
-    opacity: 0.5,
-    cursor: "not-allowed",
-  },
   randomButton: {
     backgroundColor: "#2D2D2D",
-    borderWidth: "2px",
-    borderStyle: "solid",
-    borderColor: "#2D2D2D",
+    border: "none",
     borderRadius: "8px",
     padding: "10px 16px",
     fontSize: "18px",
     cursor: "pointer",
-    transition: "all 0.2s",
-  },
-  randomButtonActive: {
-    backgroundColor: "#6C5CE7",
-    borderWidth: "2px",
-    borderStyle: "solid",
-    borderColor: "#6C5CE7",
   },
   sliderGroup: {
     display: "flex",
