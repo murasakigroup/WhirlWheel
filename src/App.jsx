@@ -5,8 +5,12 @@ import { isAlreadyFound } from "./utils/wordValidator";
 import LetterWheel from "./components/LetterWheel";
 import WordDisplay from "./components/WordDisplay";
 import CrosswordGrid from "./components/CrosswordGrid";
+import { MainMenu } from "./components/MainMenu";
+import PuzzleManager from "./puzzleManager";
 
 function App() {
+  // Navigation state
+  const [currentView, setCurrentView] = useState("menu"); // "menu" | "game" | "manager"
   // Game state
   const [currentPuzzleIndex, setCurrentPuzzleIndex] = useState(0);
   const [currentSelection, setCurrentSelection] = useState([]);
@@ -114,6 +118,22 @@ function App() {
     setFeedback(null);
   };
 
+  // Show Main Menu
+  if (currentView === "menu") {
+    return (
+      <MainMenu
+        onPlayGame={() => setCurrentView("game")}
+        onPuzzleManager={() => setCurrentView("manager")}
+      />
+    );
+  }
+
+  // Show Puzzle Manager
+  if (currentView === "manager") {
+    return <PuzzleManager />;
+  }
+
+  // Show Game
   return (
     <div
       className="app"
