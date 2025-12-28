@@ -10,6 +10,7 @@ import { AreasList } from "./components/AreasList";
 import { AreaDetail } from "./components/AreaDetail";
 import { GenerationModal } from "./components/GenerationModal";
 import { PuzzleBrowser } from "./components/PuzzleBrowser";
+import { PuzzleDetail } from "./components/PuzzleDetail";
 import { GameBuilder } from "./components/GameBuilder";
 import type { GenerationRequest } from "./types";
 
@@ -28,6 +29,7 @@ export function PuzzleManager() {
   const [selectedGenerationId, setSelectedGenerationId] = useState<
     string | null
   >(null);
+  const [selectedPuzzleId, setSelectedPuzzleId] = useState<string | null>(null);
   const [showGameBuilder, setShowGameBuilder] = useState(false);
   const [showGenerationModal, setShowGenerationModal] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -38,7 +40,9 @@ export function PuzzleManager() {
   };
 
   const handleBack = () => {
-    if (selectedGenerationId) {
+    if (selectedPuzzleId) {
+      setSelectedPuzzleId(null);
+    } else if (selectedGenerationId) {
       setSelectedGenerationId(null);
     } else if (showGameBuilder) {
       setShowGameBuilder(false);
@@ -130,8 +134,22 @@ export function PuzzleManager() {
   };
 
   const handlePuzzleDetails = (puzzleId: string) => {
-    // TODO: Navigate to Puzzle Detail
-    console.log("Puzzle details:", puzzleId);
+    setSelectedPuzzleId(puzzleId);
+  };
+
+  const handleNotesChange = (puzzleId: string, notes: string) => {
+    if (!selectedGenerationId) return;
+
+    const generation = gameData.generations.find(
+      (g) => g.id === selectedGenerationId,
+    );
+    if (!generation) return;
+
+    const updatedPuzzles = generation.puzzles.map((p) =>
+      p.id === puzzleId ? { ...p, feedback: { ...p.feedback, notes } } : p,
+    );
+
+    updateGeneration(selectedGenerationId, { puzzles: updatedPuzzles });
   };
 
   // Find selected area and its generations
@@ -146,6 +164,10 @@ export function PuzzleManager() {
     (g) => g.id === selectedGenerationId,
   );
 
+  const selectedPuzzle = selectedGeneration?.puzzles.find(
+    (p) => p.id === selectedPuzzleId,
+  );
+
   // Game Builder
   if (showGameBuilder) {
     return (
@@ -154,6 +176,20 @@ export function PuzzleManager() {
         onAutoFill={autoFill}
         onLocationClick={handleLocationClick}
         onExport={exportData}
+      />
+    );
+  }
+
+  // Puzzle Detail
+  if (selectedPuzzle && selectedGeneration) {
+    return (
+      <PuzzleDetail
+        puzzle={selectedPuzzle}
+        generation={selectedGeneration}
+        onBack={handleBack}
+        onLike={() => handleLikePuzzle(selectedPuzzle.id)}
+        onSkip={() => handleSkipPuzzle(selectedPuzzle.id)}
+        onNotesChange={(notes) => handleNotesChange(selectedPuzzle.id, notes)}
       />
     );
   }
