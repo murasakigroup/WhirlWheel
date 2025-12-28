@@ -40,28 +40,31 @@ const dictionary = allValidWords;
 
 /**
  * Generate random letters by picking a random word from the enhanced wordlist
- * Words are pre-sorted by fun score, so we bias toward more interesting words
+ * Words are pre-sorted by fun score, so we bias heavily toward interesting words
  */
 function generateRandomLetters(count: number): string[] {
   const countKey = String(count);
   const wordsForLength = enhancedWordlist.wordsByLength[countKey];
 
   if (wordsForLength?.length > 0) {
-    // Bias toward higher fun score words (they're sorted by fun score descending)
-    // Use weighted random: 50% chance from top third, 30% from middle, 20% from bottom
-    const third = Math.floor(wordsForLength.length / 3);
+    // Bias heavily toward higher fun score words (sorted by fun score descending)
+    // Use weighted random: 70% from top 20%, 25% from next 30%, 5% from rest
+    const top20Pct = Math.max(1, Math.floor(wordsForLength.length * 0.2));
+    const top50Pct = Math.max(1, Math.floor(wordsForLength.length * 0.5));
     const rand = Math.random();
     let index: number;
 
-    if (rand < 0.5 && third > 0) {
-      // Top third (highest fun scores)
-      index = Math.floor(Math.random() * third);
-    } else if (rand < 0.8 && third * 2 < wordsForLength.length) {
-      // Middle third
-      index = third + Math.floor(Math.random() * third);
+    if (rand < 0.7) {
+      // Top 20% (highest fun scores) - 70% chance
+      index = Math.floor(Math.random() * top20Pct);
+    } else if (rand < 0.95) {
+      // Next 30% (20-50%) - 25% chance
+      index = top20Pct + Math.floor(Math.random() * (top50Pct - top20Pct));
     } else {
-      // Bottom third or fallback to any
-      index = Math.floor(Math.random() * wordsForLength.length);
+      // Bottom 50% - 5% chance (for variety)
+      index =
+        top50Pct +
+        Math.floor(Math.random() * (wordsForLength.length - top50Pct));
     }
 
     const selectedWord = wordsForLength[index];
