@@ -50,33 +50,30 @@ export function PuzzleDetail({
       </header>
 
       <div style={styles.content}>
-        {/* Score Section */}
+        {/* Score Section - Horizontal Layout */}
         <div style={styles.scoreSection}>
-          <div style={styles.finalScore}>
+          <div style={styles.finalScoreGroup}>
             <span style={styles.finalScoreValue}>
               {(puzzle.score * 100).toFixed(0)}
             </span>
-            <span style={styles.finalScoreLabel}>Final Score</span>
-            {isLiked && <span style={styles.statusBadgeLiked}>❤️ Liked</span>}
-            {isSkipped && (
-              <span style={styles.statusBadgeSkipped}>✗ Skipped</span>
-            )}
+            <span style={styles.finalScoreLabel}>Final</span>
           </div>
-          <div style={styles.scoreBreakdown}>
-            <div style={styles.scoreComponent}>
-              <span style={styles.componentValue}>
-                {(gridScore * 100).toFixed(0)}
-              </span>
-              <span style={styles.componentLabel}>Grid (85%)</span>
-            </div>
-            <span style={styles.scorePlus}>+</span>
-            <div style={styles.scoreComponent}>
-              <span style={styles.componentValue}>
-                {(funScore * 100).toFixed(0)}
-              </span>
-              <span style={styles.componentLabel}>Fun (15%)</span>
-            </div>
+          <span style={styles.scoreEquals}>=</span>
+          <div style={styles.scoreComponent}>
+            <span style={styles.componentValue}>
+              {(gridScore * 100).toFixed(0)}
+            </span>
+            <span style={styles.componentLabel}>Grid</span>
           </div>
+          <span style={styles.scorePlus}>+</span>
+          <div style={styles.scoreComponent}>
+            <span style={styles.componentValue}>
+              {(funScore * 100).toFixed(0)}
+            </span>
+            <span style={styles.componentLabel}>Fun</span>
+          </div>
+          {isLiked && <span style={styles.statusBadgeLiked}>❤️</span>}
+          {isSkipped && <span style={styles.statusBadgeSkipped}>✗</span>}
         </div>
 
         {/* Large Grid */}
@@ -223,30 +220,30 @@ const styles: Record<string, React.CSSProperties> = {
   scoreSection: {
     backgroundColor: "#1E1E1E",
     borderRadius: "12px",
-    padding: "16px",
+    padding: "12px 16px",
     marginBottom: "20px",
-  },
-  finalScore: {
     display: "flex",
     alignItems: "center",
     gap: "12px",
-    marginBottom: "12px",
+  },
+  finalScoreGroup: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
   },
   finalScoreValue: {
-    fontSize: "36px",
+    fontSize: "28px",
     fontWeight: "700",
     color: "#6C5CE7",
   },
   finalScoreLabel: {
-    fontSize: "14px",
+    fontSize: "10px",
     color: "#A0A0A0",
+    textTransform: "uppercase",
   },
-  scoreBreakdown: {
-    display: "flex",
-    alignItems: "center",
-    gap: "12px",
-    paddingTop: "12px",
-    borderTop: "1px solid #2D2D2D",
+  scoreEquals: {
+    fontSize: "18px",
+    color: "#666",
   },
   scoreComponent: {
     display: "flex",
@@ -254,33 +251,34 @@ const styles: Record<string, React.CSSProperties> = {
     alignItems: "center",
   },
   componentValue: {
-    fontSize: "18px",
+    fontSize: "16px",
     fontWeight: "600",
     color: "#FFFFFF",
   },
   componentLabel: {
-    fontSize: "11px",
+    fontSize: "10px",
     color: "#666",
+    textTransform: "uppercase",
   },
   scorePlus: {
-    fontSize: "16px",
+    fontSize: "14px",
     color: "#666",
   },
   statusBadgeLiked: {
     backgroundColor: "#00B894",
     color: "#FFFFFF",
-    padding: "4px 12px",
-    borderRadius: "16px",
-    fontSize: "12px",
-    fontWeight: "600",
+    padding: "4px 8px",
+    borderRadius: "12px",
+    fontSize: "14px",
+    marginLeft: "auto",
   },
   statusBadgeSkipped: {
     backgroundColor: "#D63031",
     color: "#FFFFFF",
-    padding: "4px 12px",
-    borderRadius: "16px",
-    fontSize: "12px",
-    fontWeight: "600",
+    padding: "4px 8px",
+    borderRadius: "12px",
+    fontSize: "14px",
+    marginLeft: "auto",
   },
   gridContainer: {
     backgroundColor: "#1E1E1E",

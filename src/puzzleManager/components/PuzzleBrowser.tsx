@@ -3,9 +3,9 @@
  * Browse and rate puzzles from a generation
  */
 
-import React, { useState } from 'react';
-import type { Generation } from '../types';
-import { PuzzleCard } from './PuzzleCard';
+import React, { useState } from "react";
+import type { Generation } from "../types";
+import { PuzzleCard } from "./PuzzleCard";
 
 interface PuzzleBrowserProps {
   generation: Generation;
@@ -20,20 +20,22 @@ export function PuzzleBrowser({
   onBack,
   onLikePuzzle,
   onSkipPuzzle,
-  onPuzzleDetails
+  onPuzzleDetails,
 }: PuzzleBrowserProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   // Sort puzzles by score (highest first)
-  const sortedPuzzles = [...generation.puzzles].sort((a, b) => b.score - a.score);
+  const sortedPuzzles = [...generation.puzzles].sort(
+    (a, b) => b.score - a.score,
+  );
   const currentPuzzle = sortedPuzzles[currentIndex];
 
   const handlePrev = () => {
-    setCurrentIndex(prev => Math.max(0, prev - 1));
+    setCurrentIndex((prev) => Math.max(0, prev - 1));
   };
 
   const handleNext = () => {
-    setCurrentIndex(prev => Math.min(sortedPuzzles.length - 1, prev + 1));
+    setCurrentIndex((prev) => Math.min(sortedPuzzles.length - 1, prev + 1));
   };
 
   const handleLike = () => {
@@ -54,9 +56,7 @@ export function PuzzleBrowser({
         <button onClick={onBack} style={styles.backButton}>
           ← Back
         </button>
-        <h1 style={styles.title}>
-          {generation.letters.join('')}
-        </h1>
+        <h1 style={styles.title}>{generation.letters.join("")}</h1>
         <span style={styles.counter}>
           {currentIndex + 1}/{sortedPuzzles.length}
         </span>
@@ -65,6 +65,7 @@ export function PuzzleBrowser({
       <div style={styles.content}>
         <PuzzleCard
           puzzle={currentPuzzle}
+          funScore={generation.funScore}
           onLike={handleLike}
           onSkip={handleSkip}
           onDetails={handleDetails}
@@ -76,7 +77,7 @@ export function PuzzleBrowser({
             disabled={currentIndex === 0}
             style={{
               ...styles.navButton,
-              ...(currentIndex === 0 ? styles.navButtonDisabled : {})
+              ...(currentIndex === 0 ? styles.navButtonDisabled : {}),
             }}
           >
             ◄ Prev
@@ -89,7 +90,7 @@ export function PuzzleBrowser({
                 onClick={() => setCurrentIndex(index)}
                 style={{
                   ...styles.dot,
-                  ...(index === currentIndex ? styles.dotActive : {})
+                  ...(index === currentIndex ? styles.dotActive : {}),
                 }}
               />
             ))}
@@ -100,7 +101,9 @@ export function PuzzleBrowser({
             disabled={currentIndex === sortedPuzzles.length - 1}
             style={{
               ...styles.navButton,
-              ...(currentIndex === sortedPuzzles.length - 1 ? styles.navButtonDisabled : {})
+              ...(currentIndex === sortedPuzzles.length - 1
+                ? styles.navButtonDisabled
+                : {}),
             }}
           >
             Next ►
@@ -113,81 +116,81 @@ export function PuzzleBrowser({
 
 const styles: Record<string, React.CSSProperties> = {
   container: {
-    minHeight: '100vh',
-    backgroundColor: '#121212',
-    color: '#FFFFFF',
-    fontFamily: 'system-ui, -apple-system, sans-serif'
+    minHeight: "100vh",
+    backgroundColor: "#121212",
+    color: "#FFFFFF",
+    fontFamily: "system-ui, -apple-system, sans-serif",
   },
   header: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: '20px',
-    borderBottom: '1px solid #2D2D2D'
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: "20px",
+    borderBottom: "1px solid #2D2D2D",
   },
   backButton: {
-    backgroundColor: 'transparent',
-    border: 'none',
-    color: '#6C5CE7',
-    fontSize: '16px',
-    cursor: 'pointer',
-    padding: '8px'
+    backgroundColor: "transparent",
+    border: "none",
+    color: "#6C5CE7",
+    fontSize: "16px",
+    cursor: "pointer",
+    padding: "8px",
   },
   title: {
     margin: 0,
-    fontSize: '24px',
-    fontWeight: '600'
+    fontSize: "24px",
+    fontWeight: "600",
   },
   counter: {
-    fontSize: '14px',
-    color: '#A0A0A0',
-    minWidth: '60px',
-    textAlign: 'right'
+    fontSize: "14px",
+    color: "#A0A0A0",
+    minWidth: "60px",
+    textAlign: "right",
   },
   content: {
-    padding: '20px',
-    maxWidth: '600px',
-    margin: '0 auto'
+    padding: "20px",
+    maxWidth: "600px",
+    margin: "0 auto",
   },
   navigation: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginTop: '24px',
-    gap: '16px'
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginTop: "24px",
+    gap: "16px",
   },
   navButton: {
-    backgroundColor: '#2D2D2D',
-    border: 'none',
-    color: '#FFFFFF',
-    padding: '12px 20px',
-    borderRadius: '8px',
-    fontSize: '14px',
-    fontWeight: '600',
-    cursor: 'pointer',
-    minWidth: '80px'
+    backgroundColor: "#2D2D2D",
+    border: "none",
+    color: "#FFFFFF",
+    padding: "12px 20px",
+    borderRadius: "8px",
+    fontSize: "14px",
+    fontWeight: "600",
+    cursor: "pointer",
+    minWidth: "80px",
   },
   navButtonDisabled: {
     opacity: 0.3,
-    cursor: 'not-allowed'
+    cursor: "not-allowed",
   },
   dots: {
-    display: 'flex',
-    gap: '8px',
+    display: "flex",
+    gap: "8px",
     flex: 1,
-    justifyContent: 'center',
-    flexWrap: 'wrap'
+    justifyContent: "center",
+    flexWrap: "wrap",
   },
   dot: {
-    width: '8px',
-    height: '8px',
-    borderRadius: '50%',
-    backgroundColor: '#2D2D2D',
-    border: 'none',
+    width: "8px",
+    height: "8px",
+    borderRadius: "50%",
+    backgroundColor: "#2D2D2D",
+    border: "none",
     padding: 0,
-    cursor: 'pointer'
+    cursor: "pointer",
   },
   dotActive: {
-    backgroundColor: '#6C5CE7'
-  }
+    backgroundColor: "#6C5CE7",
+  },
 };
