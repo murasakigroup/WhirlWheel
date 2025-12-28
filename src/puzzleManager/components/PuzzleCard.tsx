@@ -109,6 +109,8 @@ const styles: Record<string, React.CSSProperties> = {
     padding: "20px",
     border: "1px solid #2D2D2D",
     cursor: "pointer",
+    WebkitTapHighlightColor: "transparent",
+    outline: "none",
   },
   header: {
     marginBottom: "16px",
