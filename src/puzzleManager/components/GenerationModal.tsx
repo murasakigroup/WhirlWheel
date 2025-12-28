@@ -3,9 +3,28 @@
  * Modal for configuring puzzle generation parameters
  */
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import type { GenerationRequest } from "../types";
 import type { GeneratorParams } from "../../puzzleGenerator/types";
+import enhancedWordlistData from "../../data/enhanced-wordlist.json";
+
+// Get random letters from enhanced wordlist
+function getRandomLetters(count: number): string {
+  const wordsByLength = enhancedWordlistData.wordsByLength as Record<
+    string,
+    string[]
+  >;
+  const words = wordsByLength[String(count)] || [];
+  if (words.length > 0) {
+    return words[Math.floor(Math.random() * words.length)];
+  }
+  return "ABCDEFGH".slice(0, count);
+}
+
+// Get random seed
+function getRandomSeed(): number {
+  return Math.floor(Math.random() * 1000000);
+}
 
 interface GenerationModalProps {
   letterCount: number;
@@ -18,10 +37,23 @@ export function GenerationModal({
   onGenerate,
   onClose,
 }: GenerationModalProps) {
-  const [letters, setLetters] = useState("");
+  const [letters, setLetters] = useState(() => getRandomLetters(letterCount));
   const [useRandomLetters, setUseRandomLetters] = useState(true);
-  const [seed, setSeed] = useState("");
+  const [seed, setSeed] = useState(() => String(getRandomSeed()));
   const [useRandomSeed, setUseRandomSeed] = useState(true);
+
+  // Regenerate random values when toggling back to random mode
+  useEffect(() => {
+    if (useRandomLetters) {
+      setLetters(getRandomLetters(letterCount));
+    }
+  }, [useRandomLetters, letterCount]);
+
+  useEffect(() => {
+    if (useRandomSeed) {
+      setSeed(String(getRandomSeed()));
+    }
+  }, [useRandomSeed]);
   const [minWordCount, setMinWordCount] = useState(3);
   const [maxWordCount, setMaxWordCount] = useState(6);
   const [candidatesToGenerate, setCandidatesToGenerate] = useState(10);
@@ -39,13 +71,13 @@ export function GenerationModal({
   const handleGenerate = () => {
     const request: GenerationRequest = {
       letterCount,
-      letters: useRandomLetters
-        ? undefined
-        : letters
-            .toUpperCase()
-            .split("")
-            .filter((c) => c.match(/[A-Z]/)),
-      seed: useRandomSeed ? undefined : parseInt(seed) || undefined,
+      // Always use the displayed letters (they're pre-generated for random mode)
+      letters: letters
+        .toUpperCase()
+        .split("")
+        .filter((c) => c.match(/[A-Z]/)),
+      // Always use the displayed seed
+      seed: parseInt(seed) || undefined,
       params: {
         minWordCount,
         maxWordCount,
@@ -78,9 +110,8 @@ export function GenerationModal({
               <input
                 type="text"
                 value={letters}
-                onChange={(e) => setLetters(e.target.value)}
+                onChange={(e) => setLetters(e.target.value.toUpperCase())}
                 disabled={useRandomLetters}
-                placeholder={`e.g., ${letterCount === 3 ? "CAT" : "HOMEWORK".slice(0, letterCount)}`}
                 maxLength={letterCount}
                 style={{
                   ...styles.input,
@@ -119,7 +150,6 @@ export function GenerationModal({
                 value={seed}
                 onChange={(e) => setSeed(e.target.value)}
                 disabled={useRandomSeed}
-                placeholder="Random"
                 style={{
                   ...styles.input,
                   ...(useRandomSeed ? styles.inputDisabled : {}),
