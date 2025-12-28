@@ -92,7 +92,15 @@ function App() {
   };
 
   return (
-    <div className="app">
+    <div
+      className="app"
+      style={{
+        backgroundImage: `url(${currentPuzzle.background})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+      }}
+    >
       <header>
         <h1>Word Game</h1>
         <p className="level-indicator">
