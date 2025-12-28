@@ -100,6 +100,12 @@ export function AreaDetail({
                   },
                 );
 
+                // Get top puzzle's grid score (before fun score was added)
+                const topPuzzle = generation.puzzles[0];
+                const topGridScore = topPuzzle
+                  ? (topPuzzle.score - generation.funScore * 0.15) / 0.85
+                  : 0;
+
                 return (
                   <div
                     key={generation.id}
@@ -148,6 +154,26 @@ export function AreaDetail({
                           </span>
                         </>
                       )}
+                    </div>
+                    <div style={styles.generationScores}>
+                      <span style={styles.scoreItem}>
+                        <span style={styles.scoreLabel}>Fun</span>
+                        <span style={styles.scoreValue}>
+                          {(generation.funScore * 100).toFixed(0)}
+                        </span>
+                      </span>
+                      <span style={styles.scoreItem}>
+                        <span style={styles.scoreLabel}>Grid</span>
+                        <span style={styles.scoreValue}>
+                          {(topGridScore * 100).toFixed(0)}
+                        </span>
+                      </span>
+                      <span style={styles.scoreItem}>
+                        <span style={styles.scoreLabel}>Final</span>
+                        <span style={styles.scoreValueFinal}>
+                          {topPuzzle ? (topPuzzle.score * 100).toFixed(0) : "–"}
+                        </span>
+                      </span>
                     </div>
                     <div style={styles.generationMeta}>
                       <span style={styles.generationSeed}>
@@ -303,6 +329,31 @@ const styles: Record<string, React.CSSProperties> = {
   },
   generationSkipped: {
     color: "#D63031",
+  },
+  generationScores: {
+    display: "flex",
+    gap: "16px",
+    marginBottom: "8px",
+  },
+  scoreItem: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+  },
+  scoreLabel: {
+    fontSize: "10px",
+    color: "#666",
+    textTransform: "uppercase",
+  },
+  scoreValue: {
+    fontSize: "14px",
+    fontWeight: "600",
+    color: "#A0A0A0",
+  },
+  scoreValueFinal: {
+    fontSize: "14px",
+    fontWeight: "700",
+    color: "#6C5CE7",
   },
   generationMeta: {
     fontSize: "12px",

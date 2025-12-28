@@ -4,11 +4,12 @@
  */
 
 import React, { useState } from "react";
-import type { CuratedPuzzle } from "../types";
+import type { CuratedPuzzle, Generation } from "../types";
 import { GridPreview } from "./GridPreview";
 
 interface PuzzleDetailProps {
   puzzle: CuratedPuzzle;
+  generation: Generation;
   onBack: () => void;
   onLike: () => void;
   onSkip: () => void;
@@ -17,12 +18,17 @@ interface PuzzleDetailProps {
 
 export function PuzzleDetail({
   puzzle,
+  generation,
   onBack,
   onLike,
   onSkip,
   onNotesChange,
 }: PuzzleDetailProps) {
   const [notes, setNotes] = useState(puzzle.feedback.notes || "");
+
+  // Calculate grid score (remove fun score contribution)
+  const funScore = generation.funScore;
+  const gridScore = (puzzle.score - funScore * 0.15) / 0.85;
 
   const handleNotesChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
@@ -44,12 +50,33 @@ export function PuzzleDetail({
       </header>
 
       <div style={styles.content}>
-        {/* Score Badge */}
-        <div style={styles.scoreBadge}>
-          <span style={styles.scoreLabel}>Score</span>
-          <span style={styles.scoreValue}>{puzzle.score.toFixed(2)}</span>
-          {isLiked && <span style={styles.statusBadgeLiked}>❤️ Liked</span>}
-          {isSkipped && <span style={styles.statusBadgeSkipped}>✗ Skipped</span>}
+        {/* Score Section */}
+        <div style={styles.scoreSection}>
+          <div style={styles.finalScore}>
+            <span style={styles.finalScoreValue}>
+              {(puzzle.score * 100).toFixed(0)}
+            </span>
+            <span style={styles.finalScoreLabel}>Final Score</span>
+            {isLiked && <span style={styles.statusBadgeLiked}>❤️ Liked</span>}
+            {isSkipped && (
+              <span style={styles.statusBadgeSkipped}>✗ Skipped</span>
+            )}
+          </div>
+          <div style={styles.scoreBreakdown}>
+            <div style={styles.scoreComponent}>
+              <span style={styles.componentValue}>
+                {(gridScore * 100).toFixed(0)}
+              </span>
+              <span style={styles.componentLabel}>Grid (85%)</span>
+            </div>
+            <span style={styles.scorePlus}>+</span>
+            <div style={styles.scoreComponent}>
+              <span style={styles.componentValue}>
+                {(funScore * 100).toFixed(0)}
+              </span>
+              <span style={styles.componentLabel}>Fun (15%)</span>
+            </div>
+          </div>
         </div>
 
         {/* Large Grid */}
@@ -193,20 +220,51 @@ const styles: Record<string, React.CSSProperties> = {
     maxWidth: "600px",
     margin: "0 auto",
   },
-  scoreBadge: {
+  scoreSection: {
+    backgroundColor: "#1E1E1E",
+    borderRadius: "12px",
+    padding: "16px",
+    marginBottom: "20px",
+  },
+  finalScore: {
     display: "flex",
     alignItems: "center",
     gap: "12px",
-    marginBottom: "20px",
+    marginBottom: "12px",
   },
-  scoreLabel: {
+  finalScoreValue: {
+    fontSize: "36px",
+    fontWeight: "700",
+    color: "#6C5CE7",
+  },
+  finalScoreLabel: {
     fontSize: "14px",
     color: "#A0A0A0",
   },
-  scoreValue: {
-    fontSize: "28px",
-    fontWeight: "700",
+  scoreBreakdown: {
+    display: "flex",
+    alignItems: "center",
+    gap: "12px",
+    paddingTop: "12px",
+    borderTop: "1px solid #2D2D2D",
+  },
+  scoreComponent: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+  },
+  componentValue: {
+    fontSize: "18px",
+    fontWeight: "600",
     color: "#FFFFFF",
+  },
+  componentLabel: {
+    fontSize: "11px",
+    color: "#666",
+  },
+  scorePlus: {
+    fontSize: "16px",
+    color: "#666",
   },
   statusBadgeLiked: {
     backgroundColor: "#00B894",

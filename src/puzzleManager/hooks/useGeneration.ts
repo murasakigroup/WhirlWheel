@@ -219,6 +219,7 @@ export function useGeneration() {
         letters,
         createdAt: new Date().toISOString(),
         seed,
+        funScore,
         params: {
           minWordLength: 3,
           maxWordLength: 10,
