@@ -111,6 +111,15 @@ export function GenerationModal({
               />
               <button
                 onClick={randomizeLetters}
+                onMouseDown={(e) =>
+                  (e.currentTarget.style.transform = "scale(0.95)")
+                }
+                onMouseUp={(e) =>
+                  (e.currentTarget.style.transform = "scale(1)")
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.transform = "scale(1)")
+                }
                 style={styles.randomButton}
                 title="Generate random letters"
               >
@@ -131,6 +140,15 @@ export function GenerationModal({
               />
               <button
                 onClick={randomizeSeed}
+                onMouseDown={(e) =>
+                  (e.currentTarget.style.transform = "scale(0.95)")
+                }
+                onMouseUp={(e) =>
+                  (e.currentTarget.style.transform = "scale(1)")
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.transform = "scale(1)")
+                }
                 style={styles.randomButton}
                 title="Generate random seed"
               >
@@ -386,12 +404,13 @@ const styles: Record<string, React.CSSProperties> = {
     fontFamily: "system-ui",
   },
   randomButton: {
-    backgroundColor: "#2D2D2D",
+    backgroundColor: "#6C5CE7",
     border: "none",
     borderRadius: "8px",
     padding: "10px 16px",
     fontSize: "18px",
     cursor: "pointer",
+    transition: "transform 0.1s, opacity 0.1s",
   },
   sliderGroup: {
     display: "flex",
