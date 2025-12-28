@@ -18,6 +18,7 @@ export function PuzzleManager() {
     gameData,
     addGeneration,
     updateGeneration,
+    deleteGeneration,
     autoFill,
     exportData,
     importData,
@@ -181,6 +182,7 @@ export function PuzzleManager() {
           onLocationClick={handleLocationClick}
           onGenerationClick={handleGenerationClick}
           onNewGeneration={handleNewGeneration}
+          onDeleteGeneration={deleteGeneration}
         />
         {showGenerationModal && (
           <GenerationModal
