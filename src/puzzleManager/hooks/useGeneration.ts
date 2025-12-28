@@ -172,29 +172,41 @@ export function useGeneration() {
 
       // Convert to CuratedPuzzles with hashes and feedback
       // Integrate funScore into overall score (85% grid, 15% fun)
-      const curatedPuzzles: CuratedPuzzle[] = result.allCandidates.map(
-        (candidate) => {
-          const gridHash = hashGrid(candidate.puzzle.grid);
-          const gridScore = candidate.metrics.overallScore;
-          const combinedScore = gridScore * 0.85 + funScore * 0.15;
+      const seenHashes = new Set<string>();
+      const curatedPuzzles: CuratedPuzzle[] = [];
 
-          return {
-            id: candidate.puzzle.id,
-            gridHash,
-            score: combinedScore,
-            metrics: {
-              ...candidate.metrics,
-              overallScore: combinedScore,
-            },
-            grid: candidate.puzzle.grid,
-            words: candidate.puzzle.words,
-            bonusWords: candidate.puzzle.bonusWords,
-            feedback: {
-              liked: null,
-              notes: undefined,
-            },
-          };
-        },
+      for (const candidate of result.allCandidates) {
+        const gridHash = hashGrid(candidate.puzzle.grid);
+
+        // Deduplicate by gridHash
+        if (seenHashes.has(gridHash)) {
+          continue;
+        }
+        seenHashes.add(gridHash);
+
+        const gridScore = candidate.metrics.overallScore;
+        const combinedScore = gridScore * 0.85 + funScore * 0.15;
+
+        curatedPuzzles.push({
+          id: candidate.puzzle.id,
+          gridHash,
+          score: combinedScore,
+          metrics: {
+            ...candidate.metrics,
+            overallScore: combinedScore,
+          },
+          grid: candidate.puzzle.grid,
+          words: candidate.puzzle.words,
+          bonusWords: candidate.puzzle.bonusWords,
+          feedback: {
+            liked: null,
+            notes: undefined,
+          },
+        });
+      }
+
+      console.log(
+        `[Dedup] ${result.allCandidates.length} candidates → ${curatedPuzzles.length} unique`,
       );
 
       // Re-sort by combined score
