@@ -400,7 +400,9 @@ const styles: Record<string, React.CSSProperties> = {
   },
   randomButton: {
     backgroundColor: "#2D2D2D",
-    border: "2px solid #2D2D2D",
+    borderWidth: "2px",
+    borderStyle: "solid",
+    borderColor: "#2D2D2D",
     borderRadius: "8px",
     padding: "10px 16px",
     fontSize: "18px",
@@ -409,6 +411,8 @@ const styles: Record<string, React.CSSProperties> = {
   },
   randomButtonActive: {
     backgroundColor: "#6C5CE7",
+    borderWidth: "2px",
+    borderStyle: "solid",
     borderColor: "#6C5CE7",
   },
   sliderGroup: {

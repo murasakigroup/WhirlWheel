@@ -13,14 +13,28 @@ import wordlistData from "../../data/wordlist.json";
 const dictionary = new Set(wordlistData.words.map((w) => w.toUpperCase()));
 
 /**
- * Generate random letters for a given count
+ * Generate random letters that are likely to form words
+ * Uses weighted letter frequencies from English
  */
 function generateRandomLetters(count: number): string[] {
-  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  // Common English letter distribution (weighted for word games)
+  const letterPool =
+    "EEEEEEEEEEEETTTTTTTTTAAAAAAAAAOOOOOOOOIIIIIIINNNNNNSSSSSSHHHHHRRRRRDDDLLLUUUCCCMMMWWWFFYYGGPPBBVVKJXQZ";
+
   const letters: string[] = [];
+  const used = new Set<number>();
+
+  // Pick random positions from the pool (avoid exact duplicates initially)
   for (let i = 0; i < count; i++) {
-    letters.push(alphabet[Math.floor(Math.random() * alphabet.length)]);
+    let index;
+    do {
+      index = Math.floor(Math.random() * letterPool.length);
+    } while (used.has(index) && used.size < letterPool.length);
+
+    used.add(index);
+    letters.push(letterPool[index]);
   }
+
   return letters;
 }
 
