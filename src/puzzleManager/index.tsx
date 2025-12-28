@@ -107,9 +107,15 @@ export function PuzzleManager() {
     );
     if (!generation) return;
 
+    const puzzle = generation.puzzles.find((p) => p.id === puzzleId);
+    const currentlyLiked = puzzle?.feedback.liked === true;
+
     const updatedPuzzles = generation.puzzles.map((p) =>
       p.id === puzzleId
-        ? { ...p, feedback: { ...p.feedback, liked: true } }
+        ? {
+            ...p,
+            feedback: { ...p.feedback, liked: currentlyLiked ? null : true },
+          }
         : p,
     );
 
@@ -124,9 +130,15 @@ export function PuzzleManager() {
     );
     if (!generation) return;
 
+    const puzzle = generation.puzzles.find((p) => p.id === puzzleId);
+    const currentlySkipped = puzzle?.feedback.liked === false;
+
     const updatedPuzzles = generation.puzzles.map((p) =>
       p.id === puzzleId
-        ? { ...p, feedback: { ...p.feedback, liked: false } }
+        ? {
+            ...p,
+            feedback: { ...p.feedback, liked: currentlySkipped ? null : false },
+          }
         : p,
     );
 
