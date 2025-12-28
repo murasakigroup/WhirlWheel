@@ -142,29 +142,31 @@ function App() {
       {/* Current word display */}
       <WordDisplay selectedLetters={currentSelection} />
 
-      {/* Letter wheel section with side buttons */}
+      {/* Letter wheel section with positioned buttons */}
       <div className="wheel-section">
-        <button
-          className="side-button shuffle-btn"
-          onClick={handleShuffle}
-          title="Shuffle"
-        >
-          <span>⟳</span>
-        </button>
+        <div className="wheel-wrapper">
+          <button
+            className="wheel-button shuffle-btn"
+            onClick={handleShuffle}
+            title="Shuffle"
+          >
+            <span>⟳</span>
+          </button>
 
-        <LetterWheel
-          letters={shuffledLetters}
-          selectedLetters={currentSelection}
-          onLetterClick={handleLetterClick}
-        />
+          <LetterWheel
+            letters={shuffledLetters}
+            selectedLetters={currentSelection}
+            onLetterClick={handleLetterClick}
+          />
 
-        <button
-          className="side-button clear-btn"
-          onClick={handleClear}
-          title="Clear"
-        >
-          <span>✕</span>
-        </button>
+          <button
+            className="wheel-button clear-btn"
+            onClick={handleClear}
+            title="Clear"
+          >
+            <span>✕</span>
+          </button>
+        </div>
       </div>
 
       {/* Submit button */}

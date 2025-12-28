@@ -79,55 +79,66 @@
     }
 }
 
-/* Wheel section with side buttons */
+/* Wheel section with positioned buttons */
 .wheel-section {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 15px;
     padding: 0 10px;
 }
 
-.side-button {
-    width: 48px;
-    height: 48px;
+.wheel-wrapper {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.wheel-button {
+    position: absolute;
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
     border: none;
-    background: rgba(0, 0, 0, 0.5);
     color: white;
-    font-size: 22px;
+    font-size: 20px;
     cursor: pointer;
     display: flex;
     justify-content: center;
     align-items: center;
     transition: all 0.2s ease;
     box-shadow: 0 3px 12px rgba(0, 0, 0, 0.3);
-    flex-shrink: 0;
+    z-index: 10;
 }
 
-.side-button:hover {
-    background: rgba(0, 0, 0, 0.7);
+.wheel-button:hover {
     transform: scale(1.1);
 }
 
-.side-button:active {
+.wheel-button:active {
     transform: scale(0.95);
 }
 
+/* 11 o'clock position (top-left, outside wheel) */
 .shuffle-btn {
-    background: rgba(102, 126, 234, 0.7);
+    top: -5%;
+    left: -8%;
+    background: rgba(102, 126, 234, 0.85);
 }
 
 .shuffle-btn:hover {
-    background: rgba(102, 126, 234, 0.9);
+    background: rgba(102, 126, 234, 1);
 }
 
+/* 1 o'clock position (top-right, outside wheel) */
 .clear-btn {
-    background: rgba(244, 67, 54, 0.7);
+    top: -5%;
+    right: -8%;
+    background: rgba(244, 67, 54, 0.85);
 }
 
 .clear-btn:hover {
-    background: rgba(244, 67, 54, 0.9);
+    background: rgba(244, 67, 54, 1);
 }
 
 /* Bottom controls */
