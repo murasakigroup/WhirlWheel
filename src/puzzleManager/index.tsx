@@ -9,21 +9,30 @@ import { useGeneration } from "./hooks/useGeneration";
 import { AreasList } from "./components/AreasList";
 import { AreaDetail } from "./components/AreaDetail";
 import { GenerationModal } from "./components/GenerationModal";
+import { PuzzleBrowser } from "./components/PuzzleBrowser";
 import type { GenerationRequest } from "./types";
 
 export function PuzzleManager() {
-  const { gameData, addGeneration } = useGameData();
+  const { gameData, addGeneration, updateGeneration } = useGameData();
   const { generate } = useGeneration();
   const [selectedAreaId, setSelectedAreaId] = useState<string | null>(null);
+  const [selectedGenerationId, setSelectedGenerationId] = useState<
+    string | null
+  >(null);
   const [showGenerationModal, setShowGenerationModal] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
 
   const handleAreaClick = (areaId: string) => {
     setSelectedAreaId(areaId);
+    setSelectedGenerationId(null);
   };
 
   const handleBack = () => {
-    setSelectedAreaId(null);
+    if (selectedGenerationId) {
+      setSelectedGenerationId(null);
+    } else {
+      setSelectedAreaId(null);
+    }
   };
 
   const handleLocationClick = (locationId: string) => {
@@ -32,8 +41,7 @@ export function PuzzleManager() {
   };
 
   const handleGenerationClick = (generationId: string) => {
-    // TODO: Navigate to Puzzle Browser
-    console.log("Generation clicked:", generationId);
+    setSelectedGenerationId(generationId);
   };
 
   const handleNewGeneration = () => {
@@ -55,6 +63,45 @@ export function PuzzleManager() {
     }
   };
 
+  const handleLikePuzzle = (puzzleId: string) => {
+    if (!selectedGenerationId) return;
+
+    const generation = gameData.generations.find(
+      (g) => g.id === selectedGenerationId,
+    );
+    if (!generation) return;
+
+    const updatedPuzzles = generation.puzzles.map((p) =>
+      p.id === puzzleId
+        ? { ...p, feedback: { ...p.feedback, liked: true } }
+        : p,
+    );
+
+    updateGeneration(selectedGenerationId, { puzzles: updatedPuzzles });
+  };
+
+  const handleSkipPuzzle = (puzzleId: string) => {
+    if (!selectedGenerationId) return;
+
+    const generation = gameData.generations.find(
+      (g) => g.id === selectedGenerationId,
+    );
+    if (!generation) return;
+
+    const updatedPuzzles = generation.puzzles.map((p) =>
+      p.id === puzzleId
+        ? { ...p, feedback: { ...p.feedback, liked: false } }
+        : p,
+    );
+
+    updateGeneration(selectedGenerationId, { puzzles: updatedPuzzles });
+  };
+
+  const handlePuzzleDetails = (puzzleId: string) => {
+    // TODO: Navigate to Puzzle Detail
+    console.log("Puzzle details:", puzzleId);
+  };
+
   // Find selected area and its generations
   const selectedArea = gameData.areas.find((a) => a.id === selectedAreaId);
   const areaGenerations = selectedArea
@@ -63,6 +110,24 @@ export function PuzzleManager() {
       )
     : [];
 
+  const selectedGeneration = gameData.generations.find(
+    (g) => g.id === selectedGenerationId,
+  );
+
+  // Puzzle Browser
+  if (selectedGeneration) {
+    return (
+      <PuzzleBrowser
+        generation={selectedGeneration}
+        onBack={handleBack}
+        onLikePuzzle={handleLikePuzzle}
+        onSkipPuzzle={handleSkipPuzzle}
+        onPuzzleDetails={handlePuzzleDetails}
+      />
+    );
+  }
+
+  // Area Detail
   if (selectedArea) {
     return (
       <>
@@ -85,6 +150,7 @@ export function PuzzleManager() {
     );
   }
 
+  // Areas List
   return <AreasList areas={gameData.areas} onAreaClick={handleAreaClick} />;
 }
 
