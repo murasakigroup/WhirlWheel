@@ -1,0 +1,62 @@
+.game-controls {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    padding: 10px;
+}
+
+.control-button {
+    padding: 10px 24px;
+    font-size: 15px;
+    font-weight: bold;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.control-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+}
+
+.control-button:active {
+    transform: translateY(0);
+}
+
+.submit-button {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    color: white;
+}
+
+.submit-button:hover:not(:disabled) {
+    background: linear-gradient(135deg, #0f8a7e 0%, #32d66d 100%);
+}
+
+.submit-button:disabled {
+    background: linear-gradient(135deg, #ccc 0%, #aaa 100%);
+    cursor: not-allowed;
+    transform: none;
+    opacity: 0.6;
+}
+
+.clear-button {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ffa500 100%);
+    color: white;
+}
+
+.clear-button:hover {
+    background: linear-gradient(135deg, #ff5252 0%, #ff9500 100%);
+}
+
+.shuffle-button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.shuffle-button:hover {
+    background: linear-gradient(135deg, #5568d3 0%, #663a8e 100%);
+}

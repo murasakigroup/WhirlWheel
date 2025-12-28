@@ -1,0 +1,68 @@
+.found-words-list {
+    padding: 10px;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.found-words-list h3 {
+    text-align: center;
+    color: white;
+    margin-bottom: 8px;
+    margin-top: 0;
+    font-size: 18px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.words-container {
+    background: rgba(255, 255, 255, 0.95);
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    border-radius: 15px;
+    padding: 15px;
+    min-height: 80px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+}
+
+.no-words {
+    text-align: center;
+    color: #999;
+    font-style: italic;
+    font-size: 14px;
+    margin: 0;
+}
+
+.words-container ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+}
+
+.found-word {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    color: white;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 13px;
+    animation: popIn 0.4s ease;
+    box-shadow: 0 3px 8px rgba(17, 153, 142, 0.4);
+    letter-spacing: 1px;
+}
+
+@keyframes popIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.5) rotate(-10deg);
+    }
+    60% {
+        transform: scale(1.1) rotate(5deg);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) rotate(0deg);
+    }
+}
