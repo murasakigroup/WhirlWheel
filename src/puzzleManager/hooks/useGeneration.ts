@@ -13,29 +13,24 @@ import wordlistData from "../../data/wordlist.json";
 const dictionary = new Set(wordlistData.words.map((w) => w.toUpperCase()));
 
 /**
- * Generate random letters that are likely to form words
- * Uses weighted letter frequencies from English
+ * Generate random letters by picking a random word from the dictionary
+ * Guarantees at least one valid word exists
  */
 function generateRandomLetters(count: number): string[] {
-  // Common English letter distribution (weighted for word games)
-  const letterPool =
-    "EEEEEEEEEEEETTTTTTTTTAAAAAAAAAOOOOOOOOIIIIIIINNNNNNSSSSSSHHHHHRRRRRDDDLLLUUUCCCMMMWWWFFYYGGPPBBVVKJXQZ";
+  // Filter words by length
+  const wordsOfLength = wordlistData.words.filter((w) => w.length === count);
 
-  const letters: string[] = [];
-  const used = new Set<number>();
-
-  // Pick random positions from the pool (avoid exact duplicates initially)
-  for (let i = 0; i < count; i++) {
-    let index;
-    do {
-      index = Math.floor(Math.random() * letterPool.length);
-    } while (used.has(index) && used.size < letterPool.length);
-
-    used.add(index);
-    letters.push(letterPool[index]);
+  if (wordsOfLength.length === 0) {
+    // Fallback: pick any word and use its letters
+    const randomWord =
+      wordlistData.words[Math.floor(Math.random() * wordlistData.words.length)];
+    return randomWord.toUpperCase().split("").slice(0, count);
   }
 
-  return letters;
+  // Pick a random word of the desired length
+  const randomWord =
+    wordsOfLength[Math.floor(Math.random() * wordsOfLength.length)];
+  return randomWord.toUpperCase().split("");
 }
 
 /**
