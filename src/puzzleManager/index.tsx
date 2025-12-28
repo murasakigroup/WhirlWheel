@@ -3,15 +3,21 @@
  * Main entry point for the puzzle curation UI
  */
 
-import React from 'react';
+import React, { useState } from "react";
+import { useGameData } from "./hooks/useGameData";
+import { AreasList } from "./components/AreasList";
 
 export function PuzzleManager() {
-  return (
-    <div style={{ padding: '20px', fontFamily: 'system-ui' }}>
-      <h1>Puzzle Manager</h1>
-      <p>Coming soon: Areas, Generations, and Puzzle Browser</p>
-    </div>
-  );
+  const { gameData } = useGameData();
+  const [selectedAreaId, setSelectedAreaId] = useState<string | null>(null);
+
+  const handleAreaClick = (areaId: string) => {
+    setSelectedAreaId(areaId);
+    // TODO: Navigate to Area Detail screen
+    console.log("Area clicked:", areaId);
+  };
+
+  return <AreasList areas={gameData.areas} onAreaClick={handleAreaClick} />;
 }
 
 export default PuzzleManager;
