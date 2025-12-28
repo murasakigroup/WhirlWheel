@@ -91,15 +91,17 @@ function findSubWords(word, minLength = 3) {
 }
 
 /**
- * Calculate fun score for a word (0.0 - 1.0)
+ * Calculate RAW fun score for a word (before percentile normalization)
  *
  * Factors:
- * 1. Letter diversity (0.4 weight) - unique letters / word length
- * 2. Sub-word variety (0.3 weight) - std dev of sub-word lengths
+ * 1. Letter diversity (0.2 weight) - unique letters / word length
+ * 2. Sub-word variety (0.2 weight) - std dev of sub-word lengths
  * 3. Sub-word count bonus (0.3 weight) - normalized by letter count
+ * 4. Meaty ratio (0.15 weight) - ratio of 4+ letter sub-words
+ * 5. Long word bonus (0.15 weight) - bonus for having 5+ letter sub-words
  */
-function calculateFunScore(word, subWords) {
-  // 1. Letter diversity: unique letters / word length
+function calculateRawFunScore(word, subWords) {
+  // 1. Letter diversity: unique letters / word length (reduced weight)
   const uniqueLetters = new Set(word.toUpperCase()).size;
   const letterDiversity = uniqueLetters / word.length;
 
@@ -117,7 +119,6 @@ function calculateFunScore(word, subWords) {
   }
 
   // 3. Sub-word count bonus: normalized by expected max for word length
-  // Expected max sub-words by letter count (approximate from our data)
   const expectedMax = {
     3: 3,
     4: 12,
@@ -129,11 +130,51 @@ function calculateFunScore(word, subWords) {
   const maxForLength = expectedMax[word.length] || 50;
   const subWordBonus = Math.min(1, subWords.length / maxForLength);
 
-  // Weighted combination
-  const funScore =
-    letterDiversity * 0.4 + subWordVariety * 0.3 + subWordBonus * 0.3;
+  // 4. Meaty ratio: proportion of sub-words that are 4+ letters
+  const meatyCount = subWords.filter((w) => w.length >= 4).length;
+  const meatyRatio = subWords.length > 0 ? meatyCount / subWords.length : 0;
 
-  return Math.round(funScore * 1000) / 1000; // Round to 3 decimal places
+  // 5. Long word bonus: reward for having 5+ letter sub-words (max at 5)
+  const longWords = subWords.filter((w) => w.length >= 5).length;
+  const longWordBonus = Math.min(1, longWords / 5);
+
+  // Weighted combination (raw score, will be normalized to percentile later)
+  const rawScore =
+    letterDiversity * 0.2 +
+    subWordVariety * 0.2 +
+    subWordBonus * 0.3 +
+    meatyRatio * 0.15 +
+    longWordBonus * 0.15;
+
+  return rawScore;
+}
+
+/**
+ * Convert raw scores to percentile ranks within each length bucket
+ * Returns a map of word -> percentile (0.0 - 1.0)
+ */
+function normalizeToPercentiles(wordsByLength, rawScores) {
+  const percentiles = {};
+
+  for (const len of Object.keys(wordsByLength)) {
+    const wordsAtLength = wordsByLength[len];
+    if (wordsAtLength.length === 0) continue;
+
+    // Sort by raw score ascending
+    const sorted = [...wordsAtLength].sort(
+      (a, b) => rawScores[a] - rawScores[b],
+    );
+
+    // Assign percentile rank
+    for (let i = 0; i < sorted.length; i++) {
+      const word = sorted[i];
+      // Percentile: position / (total - 1), so best word gets 1.0
+      const percentile = sorted.length > 1 ? i / (sorted.length - 1) : 0.5;
+      percentiles[word] = Math.round(percentile * 1000) / 1000;
+    }
+  }
+
+  return percentiles;
 }
 
 /**
@@ -155,8 +196,9 @@ function main() {
     8: [],
   };
 
-  // Detailed word data
+  // Detailed word data (will be populated in two phases)
   const words = {};
+  const rawScores = {}; // Temporary storage for raw scores
 
   // Track statistics
   const stats = {
@@ -170,7 +212,8 @@ function main() {
   // Minimum sub-words required
   const MIN_SUBWORDS = 3;
 
-  // Process each word
+  // PHASE 1: Process each word and calculate raw fun scores
+  console.log("Phase 1: Computing raw scores...");
   for (const word of allWords) {
     const len = word.length;
 
@@ -192,18 +235,18 @@ function main() {
 
     // Check if meets minimum
     if (subWords.length >= MIN_SUBWORDS) {
-      const funScore = calculateFunScore(word, subWords);
+      const rawScore = calculateRawFunScore(word, subWords);
 
       wordsByLength[len].push(word);
+      rawScores[word] = rawScore;
       words[word] = {
         subWords: subWords,
         subWordCount: subWords.length,
-        funScore: funScore,
+        funScore: 0, // Will be set in phase 2
       };
 
       stats.passed++;
       stats.byLength[len]++;
-      stats.funScoreSum += funScore;
     }
 
     // Progress indicator
@@ -216,6 +259,16 @@ function main() {
 
   console.log(`\rProcessed: ${stats.processed} words, Passed: ${stats.passed}`);
   console.log("");
+
+  // PHASE 2: Normalize raw scores to percentiles within each length bucket
+  console.log("Phase 2: Normalizing to percentiles within length buckets...");
+  const percentiles = normalizeToPercentiles(wordsByLength, rawScores);
+
+  // Apply percentile scores to words
+  for (const word of Object.keys(words)) {
+    words[word].funScore = percentiles[word];
+    stats.funScoreSum += percentiles[word];
+  }
 
   // Sort each length group by fun score (best first)
   for (const len of Object.keys(wordsByLength)) {
