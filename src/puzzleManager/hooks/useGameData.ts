@@ -3,11 +3,11 @@
  * Manages GameData state with LocalStorage persistence
  */
 
-import { useState, useEffect, useCallback } from 'react';
-import type { GameData, Area, Generation } from '../types';
-import { INITIAL_AREAS } from '../data/scaffold';
+import { useState, useEffect, useCallback } from "react";
+import type { GameData, Area, Generation } from "../types";
+import { INITIAL_AREAS } from "../data/scaffold";
 
-const STORAGE_KEY = 'puzzle-manager-data';
+const STORAGE_KEY = "puzzle-manager-data";
 
 function loadGameData(): GameData {
   try {
@@ -16,13 +16,13 @@ function loadGameData(): GameData {
       return JSON.parse(stored);
     }
   } catch (error) {
-    console.error('Failed to load game data:', error);
+    console.error("Failed to load game data:", error);
   }
 
   // Return initial scaffold if no data exists
   return {
     areas: INITIAL_AREAS,
-    generations: []
+    generations: [],
   };
 }
 
@@ -30,7 +30,7 @@ function saveGameData(data: GameData): void {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   } catch (error) {
-    console.error('Failed to save game data:', error);
+    console.error("Failed to save game data:", error);
   }
 }
 
@@ -44,64 +44,67 @@ export function useGameData() {
 
   // Add a new generation
   const addGeneration = useCallback((generation: Generation) => {
-    setGameData(prev => ({
+    setGameData((prev) => ({
       ...prev,
-      generations: [...prev.generations, generation]
+      generations: [...prev.generations, generation],
     }));
   }, []);
 
   // Update a generation (e.g., when rating puzzles)
-  const updateGeneration = useCallback((generationId: string, updates: Partial<Generation>) => {
-    setGameData(prev => ({
-      ...prev,
-      generations: prev.generations.map(gen =>
-        gen.id === generationId ? { ...gen, ...updates } : gen
-      )
-    }));
-  }, []);
+  const updateGeneration = useCallback(
+    (generationId: string, updates: Partial<Generation>) => {
+      setGameData((prev) => ({
+        ...prev,
+        generations: prev.generations.map((gen) =>
+          gen.id === generationId ? { ...gen, ...updates } : gen,
+        ),
+      }));
+    },
+    [],
+  );
 
   // Delete a generation
   const deleteGeneration = useCallback((generationId: string) => {
-    setGameData(prev => ({
+    setGameData((prev) => ({
       ...prev,
-      generations: prev.generations.filter(gen => gen.id !== generationId)
+      generations: prev.generations.filter((gen) => gen.id !== generationId),
     }));
   }, []);
 
   // Assign a puzzle to a location
   const assignPuzzle = useCallback((locationId: string, puzzleId: string) => {
-    setGameData(prev => ({
+    setGameData((prev) => ({
       ...prev,
-      areas: prev.areas.map(area => ({
+      areas: prev.areas.map((area) => ({
         ...area,
-        locations: area.locations.map(loc =>
-          loc.id === locationId ? { ...loc, assignedPuzzleId: puzzleId } : loc
-        )
-      }))
+        locations: area.locations.map((loc) =>
+          loc.id === locationId ? { ...loc, assignedPuzzleId: puzzleId } : loc,
+        ),
+      })),
     }));
   }, []);
 
   // Unassign a puzzle from a location
   const unassignPuzzle = useCallback((locationId: string) => {
-    setGameData(prev => ({
+    setGameData((prev) => ({
       ...prev,
-      areas: prev.areas.map(area => ({
+      areas: prev.areas.map((area) => ({
         ...area,
-        locations: area.locations.map(loc =>
-          loc.id === locationId ? { ...loc, assignedPuzzleId: undefined } : loc
-        )
-      }))
+        locations: area.locations.map((loc) =>
+          loc.id === locationId ? { ...loc, assignedPuzzleId: undefined } : loc,
+        ),
+      })),
     }));
   }, []);
 
   // Export data as JSON
   const exportData = useCallback(() => {
     const dataStr = JSON.stringify(gameData, null, 2);
-    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const dataBlob = new Blob([dataStr], { type: "application/json" });
     const url = URL.createObjectURL(dataBlob);
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.href = url;
-    link.download = `puzzle-manager-backup-${new Date().toISOString().split('T')[0]}.json`;
+    link.download = `puzzle-manager-backup-${new Date().toISOString().split("T")[0]}.json`;
     link.click();
     URL.revokeObjectURL(url);
   }, [gameData]);
@@ -113,7 +116,7 @@ export function useGameData() {
       setGameData(imported);
       return true;
     } catch (error) {
-      console.error('Failed to import data:', error);
+      console.error("Failed to import data:", error);
       return false;
     }
   }, []);
@@ -122,9 +125,54 @@ export function useGameData() {
   const resetData = useCallback(() => {
     const initialData: GameData = {
       areas: INITIAL_AREAS,
-      generations: []
+      generations: [],
     };
     setGameData(initialData);
+  }, []);
+
+  // Auto-fill empty slots with liked puzzles
+  const autoFill = useCallback(() => {
+    setGameData((prev) => {
+      const newAreas = [...prev.areas];
+      const likedPuzzles = prev.generations
+        .flatMap((g) => g.puzzles)
+        .filter((p) => p.feedback.liked === true);
+
+      // Group liked puzzles by letter count
+      const puzzlesByLetterCount = new Map<number, typeof likedPuzzles>();
+      for (const puzzle of likedPuzzles) {
+        const generation = prev.generations.find((g) =>
+          g.puzzles.includes(puzzle),
+        );
+        if (generation) {
+          const existing =
+            puzzlesByLetterCount.get(generation.letterCount) || [];
+          puzzlesByLetterCount.set(generation.letterCount, [
+            ...existing,
+            puzzle,
+          ]);
+        }
+      }
+
+      // Assign puzzles to empty slots
+      for (const area of newAreas) {
+        const availablePuzzles =
+          puzzlesByLetterCount.get(area.letterCount) || [];
+        let puzzleIndex = 0;
+
+        for (const location of area.locations) {
+          if (
+            !location.assignedPuzzleId &&
+            puzzleIndex < availablePuzzles.length
+          ) {
+            location.assignedPuzzleId = availablePuzzles[puzzleIndex].id;
+            puzzleIndex++;
+          }
+        }
+      }
+
+      return { ...prev, areas: newAreas };
+    });
   }, []);
 
   return {
@@ -134,8 +182,9 @@ export function useGameData() {
     deleteGeneration,
     assignPuzzle,
     unassignPuzzle,
+    autoFill,
     exportData,
     importData,
-    resetData
+    resetData,
   };
 }

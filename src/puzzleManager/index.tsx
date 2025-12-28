@@ -10,15 +10,18 @@ import { AreasList } from "./components/AreasList";
 import { AreaDetail } from "./components/AreaDetail";
 import { GenerationModal } from "./components/GenerationModal";
 import { PuzzleBrowser } from "./components/PuzzleBrowser";
+import { GameBuilder } from "./components/GameBuilder";
 import type { GenerationRequest } from "./types";
 
 export function PuzzleManager() {
-  const { gameData, addGeneration, updateGeneration } = useGameData();
+  const { gameData, addGeneration, updateGeneration, autoFill, exportData } =
+    useGameData();
   const { generate } = useGeneration();
   const [selectedAreaId, setSelectedAreaId] = useState<string | null>(null);
   const [selectedGenerationId, setSelectedGenerationId] = useState<
     string | null
   >(null);
+  const [showGameBuilder, setShowGameBuilder] = useState(false);
   const [showGenerationModal, setShowGenerationModal] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
 
@@ -30,9 +33,17 @@ export function PuzzleManager() {
   const handleBack = () => {
     if (selectedGenerationId) {
       setSelectedGenerationId(null);
+    } else if (showGameBuilder) {
+      setShowGameBuilder(false);
     } else {
       setSelectedAreaId(null);
     }
+  };
+
+  const handleShowGameBuilder = () => {
+    setShowGameBuilder(true);
+    setSelectedAreaId(null);
+    setSelectedGenerationId(null);
   };
 
   const handleLocationClick = (locationId: string) => {
@@ -114,6 +125,18 @@ export function PuzzleManager() {
     (g) => g.id === selectedGenerationId,
   );
 
+  // Game Builder
+  if (showGameBuilder) {
+    return (
+      <GameBuilder
+        gameData={gameData}
+        onAutoFill={autoFill}
+        onLocationClick={handleLocationClick}
+        onExport={exportData}
+      />
+    );
+  }
+
   // Puzzle Browser
   if (selectedGeneration) {
     return (
@@ -151,7 +174,13 @@ export function PuzzleManager() {
   }
 
   // Areas List
-  return <AreasList areas={gameData.areas} onAreaClick={handleAreaClick} />;
+  return (
+    <AreasList
+      areas={gameData.areas}
+      onAreaClick={handleAreaClick}
+      onGameBuilder={handleShowGameBuilder}
+    />
+  );
 }
 
 export default PuzzleManager;
