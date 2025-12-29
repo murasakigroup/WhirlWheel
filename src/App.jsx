@@ -325,15 +325,6 @@ function App() {
         </div>
       )}
 
-      {feedback && (
-        <div className={`feedback ${feedback}`}>
-          {feedback === "correct" && "Correct!"}
-          {feedback === "incorrect" && "Not a word"}
-          {feedback === "already" && "Already found!"}
-          {feedback === "bonus" && "Bonus word!"}
-        </div>
-      )}
-
       {/* Crossword Grid at top */}
       <CrosswordGrid
         gridWords={currentPuzzle.gridWords}
@@ -341,7 +332,7 @@ function App() {
       />
 
       {/* Current word display */}
-      <WordDisplay selectedLetters={currentSelection} />
+      <WordDisplay selectedLetters={currentSelection} feedback={feedback} />
 
       {/* Letter wheel section with positioned buttons */}
       <div className="wheel-section">
