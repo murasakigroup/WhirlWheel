@@ -208,8 +208,7 @@
 /* Area selection styles */
 .back-button {
     background: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(8px);
-    border: 2px solid rgba(255, 255, 255, 0.3);
+    border: 2px solid white;
     border-radius: var(--radius-lg);
     color: white;
     font-size: 14px;
@@ -219,12 +218,10 @@
     margin-bottom: 16px;
     align-self: flex-start;
     transition: var(--transition-normal);
-    box-shadow: var(--shadow-md);
 }
 
 .back-button:hover {
     background: rgba(0, 0, 0, 0.65);
-    transform: translateX(-2px);
 }
 
 .area-select-title {

@@ -381,18 +381,11 @@ function App() {
         backgroundRepeat: "no-repeat",
       }}
     >
-      {/* Back button */}
-      <button className="back-button" onClick={handleBackToMenu}>
-        ← Menu
-      </button>
-
-      {/* Campaign info banner */}
+      {/* Header - Area and Location in one line */}
       {gameMode === "campaign" && currentPuzzle.locationName && (
-        <div className="campaign-banner">
-          <span className="campaign-area">{currentPuzzle.areaName}</span>
-          <span className="campaign-location">
-            {currentPuzzle.locationName}
-          </span>
+        <div className="game-header">
+          <span className="header-area">{currentPuzzle.areaName}</span>
+          <span className="header-location">{currentPuzzle.locationName}</span>
         </div>
       )}
 
@@ -403,11 +396,12 @@ function App() {
         themeColor={getAreaThemeColor(getCurrentArea())}
       />
 
-      {/* Current word display */}
+      {/* Current word display - tap to submit */}
       <WordDisplay
         selectedLetters={currentSelection}
         feedback={feedback}
         themeColor={getAreaThemeColor(getCurrentArea())}
+        onSubmit={handleSubmit}
       />
 
       {/* Letter wheel section with positioned buttons */}
@@ -438,14 +432,10 @@ function App() {
         </div>
       </div>
 
-      {/* Submit button */}
-      <div className="bottom-controls">
-        <button
-          className="submit-button"
-          onClick={handleSubmit}
-          disabled={currentSelection.length < 2}
-        >
-          Submit
+      {/* Footer with back button and progress */}
+      <div className="game-footer">
+        <button className="back-button" onClick={handleBackToMenu}>
+          ← Menu
         </button>
         <p className="level-indicator">
           {gameMode === "campaign" ? (

@@ -17,9 +17,11 @@ const CELEBRATORY_MESSAGES = [
  * @param {string[]} selectedLetters - Array of selected letters
  * @param {string|null} feedback - Feedback message ('correct', 'bonus', 'incorrect', 'already')
  * @param {string} themeColor - Current theme color for styling
+ * @param {function} onSubmit - Callback when word is tapped to submit
  */
-function WordDisplay({ selectedLetters, feedback, themeColor }) {
+function WordDisplay({ selectedLetters, feedback, themeColor, onSubmit }) {
   const word = selectedLetters.map((sel) => sel.letter).join("");
+  const canSubmit = selectedLetters.length >= 2 && !feedback;
 
   // Determine what to display
   let content;
@@ -44,16 +46,24 @@ function WordDisplay({ selectedLetters, feedback, themeColor }) {
   } else if (selectedLetters.length > 0) {
     // Show current word being formed
     content = <span className="current-word">{word}</span>;
+    className += " tappable";
   } else {
     // Show placeholder
-    content = <span className="placeholder">Click letters to form a word</span>;
+    content = <span className="placeholder">Tap letters to form a word</span>;
   }
+
+  const handleClick = () => {
+    if (canSubmit && onSubmit) {
+      onSubmit();
+    }
+  };
 
   return (
     <div className="word-display">
       <div
         className={className}
         style={{ "--current-theme-color": themeColor }}
+        onClick={handleClick}
       >
         {content}
       </div>
