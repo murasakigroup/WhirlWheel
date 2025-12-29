@@ -1,0 +1,50 @@
+:root {
+  /* Area Theme Colors */
+  --theme-home: #FF9800;
+  --theme-forest: #4CAF50;
+  --theme-desert: #FFC107;
+  --theme-mountains: #2196F3;
+  --theme-ocean: #00BCD4;
+  --theme-space: #9C27B0;
+
+  /* UI Colors */
+  --color-primary: #667eea;
+  --color-success: #4CAF50;
+  --color-error: #f44336;
+  --color-warning: #FF9800;
+  --color-bonus: #E91E63;
+  --color-text: #FFFFFF;
+  --color-text-dark: #333333;
+
+  /* Shadows */
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.25);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.3);
+
+  /* Button sizes */
+  --button-size-sm: 40px;
+  --button-size-md: 48px;
+  --button-size-lg: 56px;
+
+  /* Border radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 24px;
+  --radius-full: 50%;
+
+  /* Transitions */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.25s ease;
+  --transition-slow: 0.4s ease;
+
+  /* Line thickness for letter wheel */
+  --line-thickness: 8px;
+}
+
+/* Theme classes - applied to body or app container */
+.theme-home { --theme-color: var(--theme-home); }
+.theme-forest { --theme-color: var(--theme-forest); }
+.theme-desert { --theme-color: var(--theme-desert); }
+.theme-mountains { --theme-color: var(--theme-mountains); }
+.theme-ocean { --theme-color: var(--theme-ocean); }
+.theme-space { --theme-color: var(--theme-space); }

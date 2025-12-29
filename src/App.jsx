@@ -21,6 +21,30 @@ import PuzzleManager from "./puzzleManager";
 import bonusDictionary from "./data/bonusDictionary.json";
 
 function App() {
+  // Area-to-theme-color mapping (matches theme.css variables)
+  const getAreaThemeColor = (areaId) => {
+    const areaColors = {
+      home: "#FF9800", // orange
+      forest: "#4CAF50", // green
+      desert: "#FFC107", // gold
+      mountains: "#2196F3", // blue
+      ocean: "#00BCD4", // cyan
+      space: "#9C27B0", // purple
+    };
+    return areaColors[areaId] || "#6c5ce7"; // default purple if no match
+  };
+
+  // Get current area from puzzle (campaign) or selectedAreaId
+  const getCurrentArea = () => {
+    if (currentPuzzle?.areaId) {
+      return currentPuzzle.areaId;
+    }
+    if (selectedAreaId) {
+      return selectedAreaId;
+    }
+    return "home"; // default
+  };
+
   // Navigation state
   const [currentView, setCurrentView] = useState("menu"); // "menu" | "game" | "manager"
   const [gameMode, setGameMode] = useState("quick"); // "quick" | "campaign"
@@ -344,9 +368,11 @@ function App() {
   }
 
   // Show Game
+  const currentArea = getCurrentArea();
+
   return (
     <div
-      className="app"
+      className={`app theme-${currentArea}`}
       style={{
         backgroundImage: `url(${currentPuzzle.background})`,
         backgroundSize: "cover",
@@ -373,10 +399,15 @@ function App() {
       <CrosswordGrid
         gridWords={currentPuzzle.gridWords}
         foundWords={foundWords}
+        themeColor={getAreaThemeColor(getCurrentArea())}
       />
 
       {/* Current word display */}
-      <WordDisplay selectedLetters={currentSelection} feedback={feedback} />
+      <WordDisplay
+        selectedLetters={currentSelection}
+        feedback={feedback}
+        themeColor={getAreaThemeColor(getCurrentArea())}
+      />
 
       {/* Letter wheel section with positioned buttons */}
       <div className="wheel-section">
@@ -393,6 +424,7 @@ function App() {
             letters={shuffledLetters}
             selectedLetters={currentSelection}
             onLetterClick={handleLetterClick}
+            themeColor={getAreaThemeColor(getCurrentArea())}
           />
 
           <button

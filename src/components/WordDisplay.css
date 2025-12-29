@@ -7,12 +7,16 @@
 .word-box {
     min-width: 120px;
     max-width: 90vw;
-    min-height: 44px;
-    padding: 10px 24px;
+    min-height: 50px;
+    padding: 14px 28px;
     background: linear-gradient(
         145deg,
-        rgba(102, 126, 234, 0.9),
-        rgba(118, 75, 162, 0.9)
+        var(--current-theme-color, rgba(102, 126, 234, 0.9)),
+        color-mix(
+            in srgb,
+            var(--current-theme-color, rgba(118, 75, 162, 0.9)) 80%,
+            black
+        )
     );
     border: none;
     border-radius: 25px;
@@ -20,12 +24,18 @@
     justify-content: center;
     align-items: center;
     box-shadow:
-        0 4px 20px rgba(102, 126, 234, 0.4),
+        0 4px 20px
+            color-mix(
+                in srgb,
+                var(--current-theme-color, rgba(102, 126, 234, 0.4)) 40%,
+                transparent
+            ),
         inset 0 1px 2px rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
 }
 
 .current-word {
-    font-size: clamp(20px, 5vw, 28px);
+    font-size: clamp(22px, 5.5vw, 32px);
     font-weight: bold;
     color: white;
     letter-spacing: 4px;
@@ -34,7 +44,7 @@
 }
 
 .placeholder {
-    font-size: clamp(12px, 3vw, 14px);
+    font-size: clamp(13px, 3.2vw, 15px);
     color: rgba(255, 255, 255, 0.7);
     font-style: normal;
     font-weight: 500;
@@ -42,24 +52,53 @@
 
 /* Feedback styles for word display */
 .word-feedback {
-    font-size: clamp(16px, 4vw, 20px);
+    font-size: clamp(18px, 4.5vw, 24px);
     font-weight: bold;
     color: white;
     text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+    animation: feedbackPulse 0.3s ease;
+}
+
+@keyframes feedbackPulse {
+    0% {
+        transform: scale(0.95);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
 }
 
 .word-feedback.correct {
-    background: linear-gradient(135deg, #4caf50 0%, #8bc34a 100%);
+    background: linear-gradient(135deg, #4caf50 0%, #45a049 50%, #66bb6a 100%);
+    box-shadow:
+        0 6px 30px rgba(76, 175, 80, 0.6),
+        0 0 40px rgba(76, 175, 80, 0.4),
+        inset 0 1px 2px rgba(255, 255, 255, 0.3);
 }
 
 .word-feedback.incorrect {
-    background: linear-gradient(135deg, #f44336 0%, #ff5722 100%);
+    background: linear-gradient(135deg, #f44336 0%, #e53935 50%, #ef5350 100%);
+    box-shadow:
+        0 6px 30px rgba(244, 67, 54, 0.5),
+        0 0 30px rgba(244, 67, 54, 0.3),
+        inset 0 1px 2px rgba(255, 255, 255, 0.2);
 }
 
 .word-feedback.already {
-    background: linear-gradient(135deg, #ff9800 0%, #ffc107 100%);
+    background: linear-gradient(135deg, #ff9800 0%, #fb8c00 50%, #ffa726 100%);
+    box-shadow:
+        0 6px 30px rgba(255, 152, 0, 0.5),
+        0 0 30px rgba(255, 152, 0, 0.3),
+        inset 0 1px 2px rgba(255, 255, 255, 0.2);
 }
 
 .word-feedback.bonus {
-    background: linear-gradient(135deg, #9c27b0 0%, #e91e63 100%);
+    background: linear-gradient(135deg, #9c27b0 0%, #8e24aa 50%, #ab47bc 100%);
+    box-shadow:
+        0 6px 30px rgba(156, 39, 176, 0.6),
+        0 0 40px rgba(156, 39, 176, 0.4),
+        inset 0 1px 2px rgba(255, 255, 255, 0.3);
 }

@@ -5,8 +5,9 @@ import "./CrosswordGrid.css";
  * CrosswordGrid component - displays words in a crossword-style grid like Wordscapes
  * @param {Array} gridWords - Array of word objects with {word, row, col, direction}
  * @param {string[]} foundWords - Array of words that have been found
+ * @param {string} themeColor - Theme color for found word tiles (default: #4caf50)
  */
-function CrosswordGrid({ gridWords, foundWords }) {
+function CrosswordGrid({ gridWords, foundWords, themeColor = "#4caf50" }) {
   // Calculate grid dimensions and build grid data
   const { grid, rows, cols } = useMemo(() => {
     let maxRow = 0;
@@ -91,6 +92,7 @@ function CrosswordGrid({ gridWords, foundWords }) {
           gridTemplateRows: `repeat(${rows}, ${cellSize}px)`,
           gridTemplateColumns: `repeat(${cols}, ${cellSize}px)`,
           "--cell-size": `${cellSize}px`,
+          "--current-theme-color": themeColor,
         }}
       >
         {grid.map((row, rowIndex) =>

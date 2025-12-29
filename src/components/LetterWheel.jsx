@@ -6,8 +6,14 @@ import "./LetterWheel.css";
  * @param {string[]} letters - Array of letters to display
  * @param {Array<{letter: string, index: number}>} selectedLetters - Array of currently selected letter objects
  * @param {function} onLetterClick - Callback when a letter is clicked
+ * @param {string} themeColor - Theme color for lines and selected buttons (default: var(--color-primary))
  */
-function LetterWheel({ letters, selectedLetters, onLetterClick }) {
+function LetterWheel({
+  letters,
+  selectedLetters,
+  onLetterClick,
+  themeColor = "var(--color-primary)",
+}) {
   const containerRef = useRef(null);
   const [radius, setRadius] = useState(80);
 
@@ -55,7 +61,11 @@ function LetterWheel({ letters, selectedLetters, onLetterClick }) {
 
   return (
     <div className="letter-wheel">
-      <div className="wheel-container" ref={containerRef}>
+      <div
+        className="wheel-container"
+        ref={containerRef}
+        style={{ "--current-theme-color": themeColor }}
+      >
         {/* SVG for drawing connection lines */}
         <svg
           className="connection-lines"
@@ -69,6 +79,7 @@ function LetterWheel({ letters, selectedLetters, onLetterClick }) {
               x2={line.x2}
               y2={line.y2}
               className="connection-line"
+              style={{ stroke: themeColor }}
             />
           ))}
         </svg>
