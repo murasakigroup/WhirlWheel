@@ -15,6 +15,7 @@ interface GameBuilderProps {
   onAreaClick: (areaId: string) => void;
   onLocationClick: (locationId: string) => void;
   onExport: () => void;
+  onBack?: () => void;
   batchProgress: BatchProgress | null;
 }
 
@@ -26,6 +27,7 @@ export function GameBuilder({
   onAreaClick,
   onLocationClick,
   onExport,
+  onBack,
   batchProgress,
 }: GameBuilderProps) {
   // Count filled and liked puzzles
@@ -49,7 +51,14 @@ export function GameBuilder({
   return (
     <div style={styles.container}>
       <header style={styles.header}>
-        <h1 style={styles.title}>Game Builder</h1>
+        <div style={styles.headerLeft}>
+          {onBack && (
+            <button onClick={onBack} style={styles.backButton}>
+              ← Menu
+            </button>
+          )}
+          <h1 style={styles.title}>Game Builder</h1>
+        </div>
         <div style={styles.headerActions}>
           <button
             onClick={onBatchGenerate}
@@ -207,10 +216,26 @@ const styles: Record<string, React.CSSProperties> = {
     flexWrap: "wrap",
     gap: "16px",
   },
+  headerLeft: {
+    display: "flex",
+    alignItems: "center",
+    gap: "12px",
+  },
   title: {
     margin: 0,
     fontSize: "24px",
     fontWeight: "600",
+  },
+  backButton: {
+    background: "rgba(255, 255, 255, 0.1)",
+    border: "2px solid rgba(255, 255, 255, 0.3)",
+    color: "#FFFFFF",
+    padding: "8px 16px",
+    borderRadius: "8px",
+    fontSize: "14px",
+    fontWeight: "600",
+    cursor: "pointer",
+    transition: "all 0.2s ease",
   },
   headerActions: {
     display: "flex",

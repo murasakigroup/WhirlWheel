@@ -19,7 +19,11 @@ import { AreaView } from "./components/AreaView";
 import { LocationView } from "./components/LocationView";
 import type { GenerationRequest } from "./types";
 
-export function PuzzleManager() {
+interface PuzzleManagerProps {
+  onBack?: () => void;
+}
+
+export function PuzzleManager({ onBack }: PuzzleManagerProps = {}) {
   const {
     gameData,
     addGeneration,
@@ -285,6 +289,7 @@ export function PuzzleManager() {
         onAreaClick={handleAreaClick}
         onLocationClick={handleLocationClick}
         onExport={exportData}
+        onBack={onBack}
         batchProgress={batchProgress}
       />
       {showBatchModal && (

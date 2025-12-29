@@ -339,7 +339,7 @@ function App() {
 
   // Show Puzzle Manager
   if (currentView === "manager") {
-    return <PuzzleManager />;
+    return <PuzzleManager onBack={handleBackToMenu} />;
   }
 
   // No puzzle available
