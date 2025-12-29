@@ -42,10 +42,71 @@ function App() {
       ]
     : [];
 
+  // Check if a word can be spelled by consecutive letters around the wheel (circular)
+  const canSpellInCircle = (letters, word) => {
+    const n = letters.length;
+    if (word.length > n) return false;
+
+    // Check both clockwise and counter-clockwise from each starting position
+    for (let start = 0; start < n; start++) {
+      // Clockwise
+      let matchCW = true;
+      for (let i = 0; i < word.length; i++) {
+        if (letters[(start + i) % n] !== word[i]) {
+          matchCW = false;
+          break;
+        }
+      }
+      if (matchCW) return true;
+
+      // Counter-clockwise
+      let matchCCW = true;
+      for (let i = 0; i < word.length; i++) {
+        if (letters[(start - i + n) % n] !== word[i]) {
+          matchCCW = false;
+          break;
+        }
+      }
+      if (matchCCW) return true;
+    }
+    return false;
+  };
+
+  // Shuffle letters ensuring the main word isn't easily spelled in a circle
+  const smartShuffle = (letters, gridWords) => {
+    const shuffled = [...letters];
+    const mainWord = gridWords
+      .map((gw) => gw.word.toUpperCase())
+      .sort((a, b) => b.length - a.length)[0]; // Longest word
+
+    // Only apply this check for longer puzzles (6+ letters)
+    const shouldCheck = letters.length >= 6 && mainWord;
+
+    let attempts = 0;
+    const maxAttempts = 20;
+
+    do {
+      // Fisher-Yates shuffle
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      attempts++;
+    } while (
+      shouldCheck &&
+      canSpellInCircle(shuffled, mainWord) &&
+      attempts < maxAttempts
+    );
+
+    return shuffled;
+  };
+
   // Initialize shuffled letters when puzzle changes
   useEffect(() => {
     if (currentPuzzle) {
-      setShuffledLetters([...currentPuzzle.letters]);
+      setShuffledLetters(
+        smartShuffle(currentPuzzle.letters, currentPuzzle.gridWords),
+      );
       setFoundWords([]);
       setBonusWordsFound([]);
       setCurrentSelection([]);
