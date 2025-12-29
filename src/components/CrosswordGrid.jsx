@@ -60,10 +60,10 @@ function CrosswordGrid({ gridWords, foundWords, themeColor = "#4caf50" }) {
   }, [gridWords, foundWords]);
 
   // Calculate cell size based on grid dimensions and available space
-  // Max grid width is ~85vw or 320px, max height is ~35vh
+  // Max grid width is ~85vw or 320px, max height is ~45vh
   const cellSize = useMemo(() => {
     const maxGridWidth = Math.min(window.innerWidth * 0.85, 320);
-    const maxGridHeight = window.innerHeight * 0.32;
+    const maxGridHeight = window.innerHeight * 0.45;
     const gap = 3;
     const padding = 16;
 
@@ -75,7 +75,7 @@ function CrosswordGrid({ gridWords, foundWords, themeColor = "#4caf50" }) {
 
     // Use the smaller of the two, with min/max constraints
     const size = Math.min(cellByWidth, cellByHeight);
-    return Math.max(28, Math.min(50, size));
+    return Math.max(28, Math.min(60, size));
   }, [rows, cols]);
 
   // Determine if a cell should show as found (any of its words is found)
