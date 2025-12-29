@@ -3,39 +3,40 @@
  * Displays a crossword grid visualization
  */
 
-import React from 'react';
-import type { Grid } from '../../puzzleGenerator/types';
+import React from "react";
+import type { Grid } from "../../puzzleGenerator/types";
 
 interface GridPreviewProps {
   grid: Grid;
-  size?: 'small' | 'medium' | 'large';
+  size?: "small" | "medium" | "large";
 }
 
-export function GridPreview({ grid, size = 'medium' }: GridPreviewProps) {
+export function GridPreview({ grid, size = "medium" }: GridPreviewProps) {
   const { minRow, maxRow, minCol, maxCol } = grid.bounds;
   const width = maxCol - minCol + 1;
   const height = maxRow - minRow + 1;
 
   // Cell size based on size prop
-  const cellSize = size === 'small' ? 20 : size === 'medium' ? 32 : 48;
-  const fontSize = size === 'small' ? 10 : size === 'medium' ? 14 : 20;
+  const cellSize = size === "small" ? 20 : size === "medium" ? 32 : 48;
+  const fontSize = size === "small" ? 10 : size === "medium" ? 14 : 20;
 
   const cells: JSX.Element[] = [];
 
   for (let row = minRow; row <= maxRow; row++) {
     for (let col = minCol; col <= maxCol; col++) {
-      const letter = grid.cells.get(`${row},${col}`);
+      const key = `${row},${col}`;
+      const letter = grid.cells[key];
       const x = (col - minCol) * cellSize;
       const y = (row - minRow) * cellSize;
 
       cells.push(
-        <g key={`${row},${col}`}>
+        <g key={key}>
           <rect
             x={x}
             y={y}
             width={cellSize}
             height={cellSize}
-            fill={letter ? '#6C5CE7' : '#2D2D2D'}
+            fill={letter ? "#6C5CE7" : "#2D2D2D"}
             stroke="#121212"
             strokeWidth={1}
           />
@@ -53,7 +54,7 @@ export function GridPreview({ grid, size = 'medium' }: GridPreviewProps) {
               {letter}
             </text>
           )}
-        </g>
+        </g>,
       );
     }
   }
@@ -62,7 +63,7 @@ export function GridPreview({ grid, size = 'medium' }: GridPreviewProps) {
     <svg
       width={width * cellSize}
       height={height * cellSize}
-      style={{ display: 'block', margin: '0 auto' }}
+      style={{ display: "block", margin: "0 auto" }}
     >
       {cells}
     </svg>

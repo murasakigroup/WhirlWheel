@@ -3,7 +3,7 @@
  * Scores grid quality for ranking candidates.
  */
 
-import type { Direction, Grid, PuzzleMetrics, ScoringWeights } from './types';
+import type { Direction, Grid, PuzzleMetrics, ScoringWeights } from "./types";
 
 /**
  * Get all cells a word would occupy (helper function)
@@ -12,13 +12,13 @@ function getWordCells(
   word: string,
   row: number,
   col: number,
-  direction: Direction
+  direction: Direction,
 ): Array<{ r: number; c: number }> {
   const cells = [];
   for (let i = 0; i < word.length; i++) {
     cells.push({
-      r: direction === 'horizontal' ? row : row + i,
-      c: direction === 'horizontal' ? col + i : col
+      r: direction === "horizontal" ? row : row + i,
+      c: direction === "horizontal" ? col + i : col,
     });
   }
   return cells;
@@ -29,12 +29,13 @@ function getWordCells(
  * Higher score for square grids with high fill ratio
  */
 function calculateCompactness(grid: Grid): number {
-  if (grid.cells.size === 0) return 0;
+  const cellCount = Object.keys(grid.cells).length;
+  if (cellCount === 0) return 0;
 
   const width = grid.bounds.maxCol - grid.bounds.minCol + 1;
   const height = grid.bounds.maxRow - grid.bounds.minRow + 1;
   const area = width * height;
-  const filledCells = grid.cells.size;
+  const filledCells = cellCount;
 
   // Ideal: square grid with high fill
   // Score: prefer smaller bounding box
@@ -48,12 +49,13 @@ function calculateCompactness(grid: Grid): number {
  * Calculate the density of filled cells
  */
 function calculateDensity(grid: Grid): number {
-  if (grid.cells.size === 0) return 0;
+  const cellCount = Object.keys(grid.cells).length;
+  if (cellCount === 0) return 0;
 
   const width = grid.bounds.maxCol - grid.bounds.minCol + 1;
   const height = grid.bounds.maxRow - grid.bounds.minRow + 1;
   const area = width * height;
-  const filledCells = grid.cells.size;
+  const filledCells = cellCount;
 
   return filledCells / area;
 }
@@ -65,22 +67,22 @@ function calculateIntersectionScore(grid: Grid): number {
   if (grid.placedWords.length <= 1) return 1;
 
   // Count cells that are part of multiple words
-  const cellUsage = new Map<string, number>();
+  const cellUsage: Record<string, number> = {};
 
   for (const placedWord of grid.placedWords) {
     const cells = getWordCells(
       placedWord.word,
       placedWord.row,
       placedWord.col,
-      placedWord.direction
+      placedWord.direction,
     );
     for (const { r, c } of cells) {
       const key = `${r},${c}`;
-      cellUsage.set(key, (cellUsage.get(key) || 0) + 1);
+      cellUsage[key] = (cellUsage[key] || 0) + 1;
     }
   }
 
-  const intersections = Array.from(cellUsage.values()).filter(v => v > 1).length;
+  const intersections = Object.values(cellUsage).filter((v) => v > 1).length;
   const maxPossible = grid.placedWords.length - 1; // At minimum, N-1 intersections needed
 
   return maxPossible > 0 ? Math.min(1, intersections / maxPossible) : 1;
@@ -90,7 +92,8 @@ function calculateIntersectionScore(grid: Grid): number {
  * Calculate symmetry score (visual balance around center)
  */
 function calculateSymmetry(grid: Grid): number {
-  if (grid.cells.size === 0) return 0;
+  const cellKeys = Object.keys(grid.cells);
+  if (cellKeys.length === 0) return 0;
 
   const width = grid.bounds.maxCol - grid.bounds.minCol + 1;
   const height = grid.bounds.maxRow - grid.bounds.minRow + 1;
@@ -100,13 +103,13 @@ function calculateSymmetry(grid: Grid): number {
   let symmetryScore = 0;
   let totalCells = 0;
 
-  for (const key of grid.cells.keys()) {
-    const [row, col] = key.split(',').map(Number);
+  for (const key of cellKeys) {
+    const [row, col] = key.split(",").map(Number);
     const mirrorRow = 2 * centerRow - row;
     const mirrorCol = 2 * centerCol - col;
     const mirrorKey = `${Math.round(mirrorRow)},${Math.round(mirrorCol)}`;
 
-    if (grid.cells.has(mirrorKey)) {
+    if (mirrorKey in grid.cells) {
       symmetryScore++;
     }
     totalCells++;
@@ -142,24 +145,26 @@ export function scoreGrid(grid: Grid, weights: ScoringWeights): number {
 export function calculateMetrics(grid: Grid): PuzzleMetrics {
   const width = grid.bounds.maxCol - grid.bounds.minCol + 1;
   const height = grid.bounds.maxRow - grid.bounds.minRow + 1;
-  const filledCells = grid.cells.size;
+  const filledCells = Object.keys(grid.cells).length;
   const totalCells = width * height;
 
   // Count intersections
-  const cellUsage = new Map<string, number>();
+  const cellUsage: Record<string, number> = {};
   for (const placedWord of grid.placedWords) {
     const cells = getWordCells(
       placedWord.word,
       placedWord.row,
       placedWord.col,
-      placedWord.direction
+      placedWord.direction,
     );
     for (const { r, c } of cells) {
       const key = `${r},${c}`;
-      cellUsage.set(key, (cellUsage.get(key) || 0) + 1);
+      cellUsage[key] = (cellUsage[key] || 0) + 1;
     }
   }
-  const intersectionCount = Array.from(cellUsage.values()).filter(v => v > 1).length;
+  const intersectionCount = Object.values(cellUsage).filter(
+    (v) => v > 1,
+  ).length;
 
   return {
     gridWidth: width,
@@ -168,7 +173,7 @@ export function calculateMetrics(grid: Grid): PuzzleMetrics {
     filledCells,
     density: totalCells > 0 ? filledCells / totalCells : 0,
     intersectionCount,
-    overallScore: 0 // Set by caller
+    overallScore: 0, // Set by caller
   };
 }
 
@@ -179,12 +184,13 @@ export function scorePlacementCandidate(
   word: string,
   row: number,
   col: number,
-  direction: 'horizontal' | 'vertical',
+  direction: "horizontal" | "vertical",
   grid: Grid,
-  intersections: number
+  intersections: number,
 ): number {
   // Handle empty grid
-  if (grid.cells.size === 0) {
+  const cellCount = Object.keys(grid.cells).length;
+  if (cellCount === 0) {
     return 100; // Any placement is fine for first word
   }
 
@@ -197,7 +203,7 @@ export function scorePlacementCandidate(
   let newMinCol = grid.bounds.minCol;
   let newMaxCol = grid.bounds.maxCol;
 
-  if (direction === 'horizontal') {
+  if (direction === "horizontal") {
     newMinCol = Math.min(newMinCol, col);
     newMaxCol = Math.max(newMaxCol, col + word.length - 1);
     newMinRow = Math.min(newMinRow, row);
@@ -214,10 +220,11 @@ export function scorePlacementCandidate(
   const newArea = newWidth * newHeight;
 
   // Penalize expansion
-  const expansionPenalty = newArea - (currentWidth * currentHeight);
+  const expansionPenalty = newArea - currentWidth * currentHeight;
 
   // Reward compactness
-  const aspectRatio = Math.min(newWidth, newHeight) / Math.max(newWidth, newHeight);
+  const aspectRatio =
+    Math.min(newWidth, newHeight) / Math.max(newWidth, newHeight);
 
   return aspectRatio * 100 - expansionPenalty + intersections * 10;
 }
