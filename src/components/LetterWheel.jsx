@@ -17,20 +17,39 @@ function LetterWheel({
   const containerRef = useRef(null);
   const [radius, setRadius] = useState(80);
 
-  // Update radius based on container size
+  // Calculate letter button size based on number of letters
+  // Fewer letters = larger buttons (75px for 3-4 letters, 50px for 8)
+  const getLetterSize = (letterCount) => {
+    if (letterCount <= 4) return 75;
+    if (letterCount <= 5) return 65;
+    if (letterCount <= 6) return 58;
+    return 50; // 7-8 letters
+  };
+  const letterSize = getLetterSize(letters.length);
+
+  // Get radius multiplier based on letter count
+  // Smaller radius for fewer letters to keep larger buttons inside wheel
+  const getRadiusMultiplier = (letterCount) => {
+    if (letterCount <= 3) return 0.32; // Tighter for 3 letters
+    if (letterCount <= 4) return 0.32; // Tighter for 4 letters
+    if (letterCount <= 5) return 0.34; // Slightly tighter for 5
+    return 0.38; // Default for 6+
+  };
+
+  // Update radius based on container size and letter count
   useEffect(() => {
     const updateRadius = () => {
       if (containerRef.current) {
         const containerSize = containerRef.current.offsetWidth;
-        // Radius is ~38% of container to position letters nicely within the circle
-        setRadius(containerSize * 0.38);
+        const multiplier = getRadiusMultiplier(letters.length);
+        setRadius(containerSize * multiplier);
       }
     };
 
     updateRadius();
     window.addEventListener("resize", updateRadius);
     return () => window.removeEventListener("resize", updateRadius);
-  }, []);
+  }, [letters.length]);
 
   const angleStep = (2 * Math.PI) / letters.length;
 
@@ -64,7 +83,11 @@ function LetterWheel({
       <div
         className="wheel-container"
         ref={containerRef}
-        style={{ "--current-theme-color": themeColor }}
+        style={{
+          "--current-theme-color": themeColor,
+          "--letter-size": `${letterSize}px`,
+          "--letter-font-size": `${letterSize * 0.5}px`,
+        }}
       >
         {/* SVG for drawing connection lines */}
         <svg
