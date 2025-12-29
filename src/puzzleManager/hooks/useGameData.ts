@@ -91,11 +91,62 @@ export function useGameData() {
       areas: prev.areas.map((area) => ({
         ...area,
         locations: area.locations.map((loc) =>
-          loc.id === locationId ? { ...loc, assignedPuzzleId: undefined } : loc,
+          loc.id === locationId
+            ? {
+                ...loc,
+                assignedPuzzleId: undefined,
+                assignedGenerationId: undefined,
+              }
+            : loc,
         ),
       })),
     }));
   }, []);
+
+  // Assign a generation to a location (sets first puzzle as default)
+  const assignGeneration = useCallback(
+    (locationId: string, generationId: string) => {
+      setGameData((prev) => {
+        const generation = prev.generations.find((g) => g.id === generationId);
+        const firstPuzzleId = generation?.puzzles[0]?.id;
+
+        return {
+          ...prev,
+          areas: prev.areas.map((area) => ({
+            ...area,
+            locations: area.locations.map((loc) =>
+              loc.id === locationId
+                ? {
+                    ...loc,
+                    assignedGenerationId: generationId,
+                    assignedPuzzleId: firstPuzzleId,
+                  }
+                : loc,
+            ),
+          })),
+        };
+      });
+    },
+    [],
+  );
+
+  // Select a specific puzzle within an assigned generation
+  const selectPuzzleForLocation = useCallback(
+    (locationId: string, puzzleId: string) => {
+      setGameData((prev) => ({
+        ...prev,
+        areas: prev.areas.map((area) => ({
+          ...area,
+          locations: area.locations.map((loc) =>
+            loc.id === locationId
+              ? { ...loc, assignedPuzzleId: puzzleId }
+              : loc,
+          ),
+        })),
+      }));
+    },
+    [],
+  );
 
   // Export data as JSON
   const exportData = useCallback(() => {
@@ -130,43 +181,49 @@ export function useGameData() {
     setGameData(initialData);
   }, []);
 
-  // Auto-fill empty slots with liked puzzles
+  // Auto-fill empty slots with generations (assigns first puzzle from each)
   const autoFill = useCallback(() => {
     setGameData((prev) => {
-      const newAreas = [...prev.areas];
-      const likedPuzzles = prev.generations
-        .flatMap((g) => g.puzzles)
-        .filter((p) => p.feedback.liked === true);
+      const newAreas = prev.areas.map((area) => ({
+        ...area,
+        locations: [...area.locations],
+      }));
 
-      // Group liked puzzles by letter count
-      const puzzlesByLetterCount = new Map<number, typeof likedPuzzles>();
-      for (const puzzle of likedPuzzles) {
-        const generation = prev.generations.find((g) =>
-          g.puzzles.includes(puzzle),
-        );
-        if (generation) {
-          const existing =
-            puzzlesByLetterCount.get(generation.letterCount) || [];
-          puzzlesByLetterCount.set(generation.letterCount, [
-            ...existing,
-            puzzle,
-          ]);
-        }
+      // Group generations by letter count
+      const generationsByLetterCount = new Map<
+        number,
+        typeof prev.generations
+      >();
+      for (const generation of prev.generations) {
+        const existing =
+          generationsByLetterCount.get(generation.letterCount) || [];
+        generationsByLetterCount.set(generation.letterCount, [
+          ...existing,
+          generation,
+        ]);
       }
 
-      // Assign puzzles to empty slots
+      // Assign generations to empty slots
       for (const area of newAreas) {
-        const availablePuzzles =
-          puzzlesByLetterCount.get(area.letterCount) || [];
-        let puzzleIndex = 0;
+        const availableGenerations =
+          generationsByLetterCount.get(area.letterCount) || [];
+        let genIndex = 0;
 
-        for (const location of area.locations) {
-          if (
-            !location.assignedPuzzleId &&
-            puzzleIndex < availablePuzzles.length
-          ) {
-            location.assignedPuzzleId = availablePuzzles[puzzleIndex].id;
-            puzzleIndex++;
+        for (let i = 0; i < area.locations.length; i++) {
+          const location = area.locations[i];
+          // Skip if already has a generation assigned
+          if (location.assignedGenerationId) continue;
+
+          if (genIndex < availableGenerations.length) {
+            const generation = availableGenerations[genIndex];
+            const firstPuzzle = generation.puzzles[0];
+
+            area.locations[i] = {
+              ...location,
+              assignedGenerationId: generation.id,
+              assignedPuzzleId: firstPuzzle?.id,
+            };
+            genIndex++;
           }
         }
       }
@@ -182,6 +239,8 @@ export function useGameData() {
     deleteGeneration,
     assignPuzzle,
     unassignPuzzle,
+    assignGeneration,
+    selectPuzzleForLocation,
     autoFill,
     exportData,
     importData,

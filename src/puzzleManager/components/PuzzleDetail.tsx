@@ -14,6 +14,9 @@ interface PuzzleDetailProps {
   onLike: () => void;
   onSkip: () => void;
   onNotesChange: (notes: string) => void;
+  // New props for location context
+  locationName?: string;
+  onSelectForLocation?: () => void;
 }
 
 export function PuzzleDetail({
@@ -23,6 +26,8 @@ export function PuzzleDetail({
   onLike,
   onSkip,
   onNotesChange,
+  locationName,
+  onSelectForLocation,
 }: PuzzleDetailProps) {
   const [notes, setNotes] = useState(puzzle.feedback.notes || "");
 
@@ -148,29 +153,38 @@ export function PuzzleDetail({
           />
         </div>
 
-        {/* Action Buttons */}
-        <div style={styles.actions}>
-          <button
-            onClick={onSkip}
-            style={{
-              ...styles.actionButton,
-              ...styles.skipButton,
-              ...(isSkipped ? styles.skipButtonActive : {}),
-            }}
-          >
-            👎 {isSkipped ? "Skipped" : "Skip"}
+        {/* Select for Location Button (when in location context) */}
+        {onSelectForLocation && (
+          <button onClick={onSelectForLocation} style={styles.selectButton}>
+            SELECT FOR {locationName?.toUpperCase() || "THIS LOCATION"}
           </button>
-          <button
-            onClick={onLike}
-            style={{
-              ...styles.actionButton,
-              ...styles.likeButton,
-              ...(isLiked ? styles.likeButtonActive : {}),
-            }}
-          >
-            👍 {isLiked ? "Liked" : "Like"}
-          </button>
-        </div>
+        )}
+
+        {/* Action Buttons (when not in location context) */}
+        {!onSelectForLocation && (
+          <div style={styles.actions}>
+            <button
+              onClick={onSkip}
+              style={{
+                ...styles.actionButton,
+                ...styles.skipButton,
+                ...(isSkipped ? styles.skipButtonActive : {}),
+              }}
+            >
+              👎 {isSkipped ? "Skipped" : "Skip"}
+            </button>
+            <button
+              onClick={onLike}
+              style={{
+                ...styles.actionButton,
+                ...styles.likeButton,
+                ...(isLiked ? styles.likeButtonActive : {}),
+              }}
+            >
+              👍 {isLiked ? "Liked" : "Like"}
+            </button>
+          </div>
+        )}
 
         {/* Hash Info */}
         <div style={styles.hashInfo}>
@@ -419,5 +433,18 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: "12px",
     color: "#666",
     fontFamily: "monospace",
+  },
+  selectButton: {
+    width: "100%",
+    padding: "18px",
+    borderRadius: "12px",
+    fontSize: "16px",
+    fontWeight: "700",
+    cursor: "pointer",
+    border: "none",
+    backgroundColor: "#6C5CE7",
+    color: "#FFFFFF",
+    marginBottom: "24px",
+    letterSpacing: "0.5px",
   },
 };

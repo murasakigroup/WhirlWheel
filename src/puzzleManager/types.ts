@@ -26,7 +26,8 @@ export interface Location {
   id: string; // "home-bedroom", "forest-trail"
   name: string; // "Bedroom", "Trail"
   areaId: string;
-  assignedPuzzleId?: string; // ID of the liked puzzle assigned here
+  assignedPuzzleId?: string; // ID of the puzzle assigned here
+  assignedGenerationId?: string; // ID of the generation assigned to this location
 }
 
 export interface Generation {

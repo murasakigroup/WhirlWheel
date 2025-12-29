@@ -1,17 +1,22 @@
 /**
  * Puzzle Manager
  * Main entry point for the puzzle curation UI
+ *
+ * Navigation flow:
+ * GameBuilder (entry) → AreaView → LocationView → PuzzleDetail
  */
 
 import React, { useState } from "react";
 import { useGameData } from "./hooks/useGameData";
 import { useGeneration } from "./hooks/useGeneration";
-import { AreasList } from "./components/AreasList";
-import { AreaDetail } from "./components/AreaDetail";
+import { useBatchGeneration } from "./hooks/useBatchGeneration";
 import { GenerationModal } from "./components/GenerationModal";
-import { PuzzleBrowser } from "./components/PuzzleBrowser";
+import { BatchGenerationModal } from "./components/BatchGenerationModal";
+import type { BatchGenerationConfig } from "./components/BatchGenerationModal";
 import { PuzzleDetail } from "./components/PuzzleDetail";
 import { GameBuilder } from "./components/GameBuilder";
+import { AreaView } from "./components/AreaView";
+import { LocationView } from "./components/LocationView";
 import type { GenerationRequest } from "./types";
 
 export function PuzzleManager() {
@@ -20,72 +25,61 @@ export function PuzzleManager() {
     addGeneration,
     updateGeneration,
     deleteGeneration,
+    assignGeneration,
+    selectPuzzleForLocation,
     autoFill,
     exportData,
-    importData,
   } = useGameData();
   const { generate } = useGeneration();
-  const [selectedAreaId, setSelectedAreaId] = useState<string | null>(null);
-  const [selectedGenerationId, setSelectedGenerationId] = useState<
-    string | null
-  >(null);
-  const [selectedPuzzleId, setSelectedPuzzleId] = useState<string | null>(null);
-  const [showGameBuilder, setShowGameBuilder] = useState(false);
-  const [showGenerationModal, setShowGenerationModal] = useState(false);
-  const [isGenerating, setIsGenerating] = useState(false);
+  const {
+    progress: batchProgress,
+    startBatch,
+    cancelBatch,
+  } = useBatchGeneration();
 
+  // Navigation state
+  const [selectedAreaId, setSelectedAreaId] = useState<string | null>(null);
+  const [selectedLocationId, setSelectedLocationId] = useState<string | null>(
+    null,
+  );
+  const [selectedPuzzleId, setSelectedPuzzleId] = useState<string | null>(null);
+
+  // Modal state
+  const [showGenerationModal, setShowGenerationModal] = useState(false);
+  const [showBatchModal, setShowBatchModal] = useState(false);
+
+  // Navigation handlers
   const handleAreaClick = (areaId: string) => {
     setSelectedAreaId(areaId);
-    setSelectedGenerationId(null);
+    setSelectedLocationId(null);
+    setSelectedPuzzleId(null);
+  };
+
+  const handleLocationClick = (locationId: string) => {
+    setSelectedLocationId(locationId);
+    setSelectedPuzzleId(null);
+  };
+
+  const handlePuzzleClick = (puzzleId: string) => {
+    setSelectedPuzzleId(puzzleId);
   };
 
   const handleBack = () => {
     if (selectedPuzzleId) {
       setSelectedPuzzleId(null);
-    } else if (selectedGenerationId) {
-      setSelectedGenerationId(null);
-    } else if (showGameBuilder) {
-      setShowGameBuilder(false);
-    } else {
+    } else if (selectedLocationId) {
+      setSelectedLocationId(null);
+    } else if (selectedAreaId) {
       setSelectedAreaId(null);
     }
   };
 
-  const handleShowGameBuilder = () => {
-    setShowGameBuilder(true);
-    setSelectedAreaId(null);
-    setSelectedGenerationId(null);
-  };
-
-  const handleImport = async (file: File) => {
-    try {
-      const text = await file.text();
-      const success = importData(text);
-      if (success) {
-        alert("Data imported successfully!");
-      } else {
-        alert("Failed to import data. Invalid format.");
-      }
-    } catch (error) {
-      alert("Failed to read file: " + (error as Error).message);
-    }
-  };
-
-  const handleLocationClick = (locationId: string) => {
-    // TODO: Navigate to Location Detail
-    console.log("Location clicked:", locationId);
-  };
-
-  const handleGenerationClick = (generationId: string) => {
-    setSelectedGenerationId(generationId);
-  };
-
+  // Generation handlers
   const handleNewGeneration = () => {
     setShowGenerationModal(true);
   };
 
   const handleGenerate = async (request: GenerationRequest) => {
-    setIsGenerating(true);
     try {
       const generation = await generate(request);
       addGeneration(generation);
@@ -94,66 +88,56 @@ export function PuzzleManager() {
     } catch (error) {
       console.error("Generation failed:", error);
       alert("Failed to generate puzzles: " + (error as Error).message);
-    } finally {
-      setIsGenerating(false);
     }
   };
 
-  const handleLikePuzzle = (puzzleId: string) => {
-    if (!selectedGenerationId) return;
-
-    const generation = gameData.generations.find(
-      (g) => g.id === selectedGenerationId,
-    );
-    if (!generation) return;
-
-    const puzzle = generation.puzzles.find((p) => p.id === puzzleId);
-    const currentlyLiked = puzzle?.feedback.liked === true;
-
-    const updatedPuzzles = generation.puzzles.map((p) =>
-      p.id === puzzleId
-        ? {
-            ...p,
-            feedback: { ...p.feedback, liked: currentlyLiked ? null : true },
-          }
-        : p,
-    );
-
-    updateGeneration(selectedGenerationId, { puzzles: updatedPuzzles });
+  const handleBatchGenerate = () => {
+    setShowBatchModal(true);
   };
 
-  const handleSkipPuzzle = (puzzleId: string) => {
-    if (!selectedGenerationId) return;
-
-    const generation = gameData.generations.find(
-      (g) => g.id === selectedGenerationId,
+  const handleStartBatch = async (config: BatchGenerationConfig) => {
+    setShowBatchModal(false);
+    await startBatch(
+      gameData.areas,
+      config,
+      (generation) => {
+        addGeneration(generation);
+      },
+      () => {
+        // On complete - auto-assign if enabled
+        if (config.autoAssign) {
+          autoFill();
+        }
+      },
     );
-    if (!generation) return;
-
-    const puzzle = generation.puzzles.find((p) => p.id === puzzleId);
-    const currentlySkipped = puzzle?.feedback.liked === false;
-
-    const updatedPuzzles = generation.puzzles.map((p) =>
-      p.id === puzzleId
-        ? {
-            ...p,
-            feedback: { ...p.feedback, liked: currentlySkipped ? null : false },
-          }
-        : p,
-    );
-
-    updateGeneration(selectedGenerationId, { puzzles: updatedPuzzles });
   };
 
-  const handlePuzzleDetails = (puzzleId: string) => {
-    setSelectedPuzzleId(puzzleId);
+  // Calculate generation counts per area for the modal
+  const generationCounts: Record<string, number> = {};
+  for (const area of gameData.areas) {
+    generationCounts[area.id] = gameData.generations.filter(
+      (g) => g.letterCount === area.letterCount,
+    ).length;
+  }
+
+  // Assignment handlers
+  const handleAssignGeneration = (locationId: string, generationId: string) => {
+    assignGeneration(locationId, generationId);
   };
 
+  const handleSelectPuzzleForLocation = () => {
+    if (selectedLocationId && selectedPuzzleId) {
+      selectPuzzleForLocation(selectedLocationId, selectedPuzzleId);
+      // Go back to location view after selection
+      setSelectedPuzzleId(null);
+    }
+  };
+
+  // Notes handler for PuzzleDetail
   const handleNotesChange = (puzzleId: string, notes: string) => {
-    if (!selectedGenerationId) return;
-
-    const generation = gameData.generations.find(
-      (g) => g.id === selectedGenerationId,
+    // Find which generation contains this puzzle
+    const generation = gameData.generations.find((g) =>
+      g.puzzles.some((p) => p.id === puzzleId),
     );
     if (!generation) return;
 
@@ -161,10 +145,53 @@ export function PuzzleManager() {
       p.id === puzzleId ? { ...p, feedback: { ...p.feedback, notes } } : p,
     );
 
-    updateGeneration(selectedGenerationId, { puzzles: updatedPuzzles });
+    updateGeneration(generation.id, { puzzles: updatedPuzzles });
   };
 
-  // Find selected area and its generations
+  // Like/Skip handlers (for backward compatibility in PuzzleDetail)
+  const handleLikePuzzle = () => {
+    if (!selectedPuzzleId) return;
+    const generation = gameData.generations.find((g) =>
+      g.puzzles.some((p) => p.id === selectedPuzzleId),
+    );
+    if (!generation) return;
+
+    const puzzle = generation.puzzles.find((p) => p.id === selectedPuzzleId);
+    const currentlyLiked = puzzle?.feedback.liked === true;
+
+    const updatedPuzzles = generation.puzzles.map((p) =>
+      p.id === selectedPuzzleId
+        ? {
+            ...p,
+            feedback: { ...p.feedback, liked: currentlyLiked ? null : true },
+          }
+        : p,
+    );
+    updateGeneration(generation.id, { puzzles: updatedPuzzles });
+  };
+
+  const handleSkipPuzzle = () => {
+    if (!selectedPuzzleId) return;
+    const generation = gameData.generations.find((g) =>
+      g.puzzles.some((p) => p.id === selectedPuzzleId),
+    );
+    if (!generation) return;
+
+    const puzzle = generation.puzzles.find((p) => p.id === selectedPuzzleId);
+    const currentlySkipped = puzzle?.feedback.liked === false;
+
+    const updatedPuzzles = generation.puzzles.map((p) =>
+      p.id === selectedPuzzleId
+        ? {
+            ...p,
+            feedback: { ...p.feedback, liked: currentlySkipped ? null : false },
+          }
+        : p,
+    );
+    updateGeneration(generation.id, { puzzles: updatedPuzzles });
+  };
+
+  // Derived state
   const selectedArea = gameData.areas.find((a) => a.id === selectedAreaId);
   const areaGenerations = selectedArea
     ? gameData.generations.filter(
@@ -172,65 +199,69 @@ export function PuzzleManager() {
       )
     : [];
 
-  const selectedGeneration = gameData.generations.find(
-    (g) => g.id === selectedGenerationId,
+  const selectedLocation = selectedArea?.locations.find(
+    (loc) => loc.id === selectedLocationId,
   );
 
-  const selectedPuzzle = selectedGeneration?.puzzles.find(
+  const assignedGeneration = selectedLocation
+    ? gameData.generations.find(
+        (g) => g.id === selectedLocation.assignedGenerationId,
+      )
+    : null;
+
+  const selectedPuzzle = assignedGeneration?.puzzles.find(
     (p) => p.id === selectedPuzzleId,
   );
 
-  // Game Builder
-  if (showGameBuilder) {
-    return (
-      <GameBuilder
-        gameData={gameData}
-        onAutoFill={autoFill}
-        onLocationClick={handleLocationClick}
-        onExport={exportData}
-      />
-    );
-  }
+  const currentlyAssignedPuzzle = selectedLocation
+    ? assignedGeneration?.puzzles.find(
+        (p) => p.id === selectedLocation.assignedPuzzleId,
+      )
+    : null;
 
-  // Puzzle Detail
-  if (selectedPuzzle && selectedGeneration) {
+  // ============ RENDER ============
+
+  // Puzzle Detail View
+  if (selectedPuzzle && assignedGeneration && selectedLocation) {
     return (
       <PuzzleDetail
         puzzle={selectedPuzzle}
-        generation={selectedGeneration}
+        generation={assignedGeneration}
         onBack={handleBack}
-        onLike={() => handleLikePuzzle(selectedPuzzle.id)}
-        onSkip={() => handleSkipPuzzle(selectedPuzzle.id)}
+        onLike={handleLikePuzzle}
+        onSkip={handleSkipPuzzle}
         onNotesChange={(notes) => handleNotesChange(selectedPuzzle.id, notes)}
+        locationName={selectedLocation.name}
+        onSelectForLocation={handleSelectPuzzleForLocation}
       />
     );
   }
 
-  // Puzzle Browser
-  if (selectedGeneration) {
+  // Location View
+  if (selectedLocation && selectedArea) {
     return (
-      <PuzzleBrowser
-        generation={selectedGeneration}
+      <LocationView
+        location={selectedLocation}
+        area={selectedArea}
+        generation={assignedGeneration}
+        selectedPuzzle={currentlyAssignedPuzzle || null}
         onBack={handleBack}
-        onLikePuzzle={handleLikePuzzle}
-        onSkipPuzzle={handleSkipPuzzle}
-        onPuzzleDetails={handlePuzzleDetails}
+        onPuzzleClick={handlePuzzleClick}
       />
     );
   }
 
-  // Area Detail
+  // Area View
   if (selectedArea) {
     return (
       <>
-        <AreaDetail
+        <AreaView
           area={selectedArea}
           generations={areaGenerations}
           onBack={handleBack}
           onLocationClick={handleLocationClick}
-          onGenerationClick={handleGenerationClick}
           onNewGeneration={handleNewGeneration}
-          onDeleteGeneration={deleteGeneration}
+          onAssignGeneration={handleAssignGeneration}
         />
         {showGenerationModal && (
           <GenerationModal
@@ -243,15 +274,28 @@ export function PuzzleManager() {
     );
   }
 
-  // Areas List
+  // Game Builder (entry point)
   return (
-    <AreasList
-      areas={gameData.areas}
-      onAreaClick={handleAreaClick}
-      onGameBuilder={handleShowGameBuilder}
-      onExport={exportData}
-      onImport={handleImport}
-    />
+    <>
+      <GameBuilder
+        gameData={gameData}
+        onAutoFill={autoFill}
+        onBatchGenerate={handleBatchGenerate}
+        onCancelBatch={cancelBatch}
+        onAreaClick={handleAreaClick}
+        onLocationClick={handleLocationClick}
+        onExport={exportData}
+        batchProgress={batchProgress}
+      />
+      {showBatchModal && (
+        <BatchGenerationModal
+          areas={gameData.areas}
+          generationCounts={generationCounts}
+          onStart={handleStartBatch}
+          onClose={() => setShowBatchModal(false)}
+        />
+      )}
+    </>
   );
 }
 
