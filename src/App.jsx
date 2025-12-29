@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import { Shuffle } from "lucide-react";
 import "./App.css";
 import { puzzles as quickPlayPuzzles } from "./data/puzzles";
 import {
@@ -417,7 +418,7 @@ function App() {
             onClick={handleShuffle}
             title="Shuffle"
           >
-            <span>↻</span>
+            <Shuffle size={22} />
           </button>
 
           <LetterWheel
