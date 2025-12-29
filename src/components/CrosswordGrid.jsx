@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import "./CrosswordGrid.css";
 
 /**
- * CrosswordGrid component - displays words in a crossword-style grid like Wordscapes
+ * CrosswordGrid component - displays words in a crossword-style grid
  * @param {Array} gridWords - Array of word objects with {word, row, col, direction}
  * @param {string[]} foundWords - Array of words that have been found
  * @param {string} themeColor - Theme color for found word tiles (default: #4caf50)

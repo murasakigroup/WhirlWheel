@@ -147,7 +147,7 @@ export function MainMenu({
     <div className="main-menu-container">
       <div className="main-menu-content">
         <h1 className="main-menu-title">Word Game</h1>
-        <p className="main-menu-subtitle">Wordscapes-style Crossword Puzzle</p>
+        <p className="main-menu-subtitle">Whirl Wheel Crossword Puzzle</p>
 
         <div className="main-menu">
           {/* Continue button (shown if saved progress exists) */}

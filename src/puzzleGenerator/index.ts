@@ -1,16 +1,20 @@
 /**
  * Puzzle Generator Module
- * Public API for generating Wordscapes-style crossword puzzles.
+ * Public API for generating crossword puzzles.
  */
 
 // Main generator
-export { generatePuzzle, printGrid } from './generator';
+export { generatePuzzle, printGrid } from "./generator";
 
 // Word finding
-export { findValidWords } from './wordFinder';
+export { findValidWords } from "./wordFinder";
 
 // Intersection graph
-export { buildIntersectionGraph, getIntersections, countWordConnections } from './intersectionGraph';
+export {
+  buildIntersectionGraph,
+  getIntersections,
+  countWordConnections,
+} from "./intersectionGraph";
 
 // Grid placement
 export {
@@ -23,11 +27,15 @@ export {
   placeWord,
   findValidPlacements,
   isGridConnected,
-  normalizeGrid
-} from './gridPlacer';
+  normalizeGrid,
+} from "./gridPlacer";
 
 // Grid scoring
-export { scoreGrid, calculateMetrics, scorePlacementCandidate } from './gridScorer';
+export {
+  scoreGrid,
+  calculateMetrics,
+  scorePlacementCandidate,
+} from "./gridScorer";
 
 // Types
 export type {
@@ -43,5 +51,5 @@ export type {
   GeneratorParams,
   GeneratorResult,
   ValidationResult,
-  ScoringWeights
-} from './types';
+  ScoringWeights,
+} from "./types";
