@@ -417,7 +417,7 @@ function App() {
             onClick={handleShuffle}
             title="Shuffle"
           >
-            <span>🔀</span>
+            <span>↻</span>
           </button>
 
           <LetterWheel
