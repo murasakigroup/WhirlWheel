@@ -7,6 +7,12 @@ import {
   getCampaignPuzzles,
 } from "./data/campaignLoader";
 import { isAlreadyFound } from "./utils/wordValidator";
+import {
+  saveProgress,
+  loadProgress,
+  markPuzzleComplete,
+  getCompletedPuzzles,
+} from "./utils/progressStorage";
 import LetterWheel from "./components/LetterWheel";
 import WordDisplay from "./components/WordDisplay";
 import CrosswordGrid from "./components/CrosswordGrid";
@@ -160,9 +166,21 @@ function App() {
 
       // Check if puzzle is complete (all grid words found)
       if (foundWords.length + 1 === currentPuzzle.gridWords.length) {
+        // Mark puzzle as complete in campaign mode
+        if (gameMode === "campaign" && currentPuzzle.areaName) {
+          const puzzleId = currentPuzzle.areaName.toLowerCase();
+          markPuzzleComplete(puzzleId, currentPuzzleIndex);
+        }
+
         setTimeout(() => {
           if (currentPuzzleIndex < puzzles.length - 1) {
-            setCurrentPuzzleIndex(currentPuzzleIndex + 1);
+            const nextIndex = currentPuzzleIndex + 1;
+            setCurrentPuzzleIndex(nextIndex);
+
+            // Save progress for campaign
+            if (gameMode === "campaign") {
+              saveProgress(selectedAreaId, nextIndex, getCompletedPuzzles());
+            }
           } else {
             // All puzzles complete
             if (gameMode === "campaign") {
@@ -216,7 +234,7 @@ function App() {
   };
 
   // Play campaign
-  const handlePlayCampaign = (areaId) => {
+  const handlePlayCampaign = (areaId, startIndex = 0) => {
     const gameData = loadCampaignData();
     if (!gameData) {
       alert(
@@ -244,9 +262,32 @@ function App() {
     }
 
     setPuzzles(campaignPuzzles);
-    setCurrentPuzzleIndex(0);
+    setCurrentPuzzleIndex(startIndex);
     setGameMode("campaign");
     setCurrentView("game");
+  };
+
+  // Continue from saved progress
+  const handleContinueCampaign = () => {
+    const progress = loadProgress();
+    if (!progress) return;
+
+    handlePlayCampaign(progress.areaId, progress.puzzleIndex);
+  };
+
+  // Reset progress
+  const handleResetProgress = () => {
+    const confirmed = window.confirm(
+      "Are you sure you want to reset all campaign progress? This cannot be undone.",
+    );
+    if (confirmed) {
+      saveProgress(null, 0, []);
+    }
+  };
+
+  // Select specific level (for testing/debugging)
+  const handleSelectLevel = (areaId, puzzleIndex) => {
+    handlePlayCampaign(areaId, puzzleIndex);
   };
 
   // Play quick game
@@ -264,6 +305,9 @@ function App() {
         onPlayCampaign={handlePlayCampaign}
         onPlayQuickGame={handlePlayQuickGame}
         onPuzzleManager={() => setCurrentView("manager")}
+        onContinueCampaign={handleContinueCampaign}
+        onResetProgress={handleResetProgress}
+        onSelectLevel={handleSelectLevel}
       />
     );
   }

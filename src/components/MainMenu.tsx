@@ -9,22 +9,33 @@ import {
   getCampaignProgress,
   hasCampaignPuzzles,
 } from "../data/campaignLoader";
+import { loadProgress, isPuzzleComplete } from "../utils/progressStorage";
 
 interface MainMenuProps {
   onPlayCampaign: (areaId?: string) => void;
   onPlayQuickGame: () => void;
   onPuzzleManager: () => void;
+  onContinueCampaign: () => void;
+  onResetProgress: () => void;
+  onSelectLevel: (areaId: string, puzzleIndex: number) => void;
 }
 
 export function MainMenu({
   onPlayCampaign,
   onPlayQuickGame,
   onPuzzleManager,
+  onContinueCampaign,
+  onResetProgress,
+  onSelectLevel,
 }: MainMenuProps) {
   const [showAreaSelect, setShowAreaSelect] = useState(false);
+  const [showLevelSelect, setShowLevelSelect] = useState(false);
   const [campaignAvailable, setCampaignAvailable] = useState(false);
   const [progress, setProgress] = useState<ReturnType<
     typeof getCampaignProgress
+  > | null>(null);
+  const [savedProgress, setSavedProgress] = useState<ReturnType<
+    typeof loadProgress
   > | null>(null);
 
   useEffect(() => {
@@ -37,6 +48,10 @@ export function MainMenu({
         setProgress(getCampaignProgress(gameData));
       }
     }
+
+    // Load saved progress
+    const saved = loadProgress();
+    setSavedProgress(saved);
   }, []);
 
   const handlePlayCampaign = () => {
@@ -53,6 +68,20 @@ export function MainMenu({
   const handlePlayAll = () => {
     setShowAreaSelect(false);
     onPlayCampaign();
+  };
+
+  const handleResetProgress = () => {
+    onResetProgress();
+    // Reload saved progress after reset
+    const saved = loadProgress();
+    setSavedProgress(saved);
+  };
+
+  const getAreaNameById = (areaId: string | null): string => {
+    if (!areaId) return "All Areas";
+    if (!progress) return areaId;
+    const area = progress.areas.find((a) => a.id === areaId);
+    return area ? area.name : areaId;
   };
 
   // Area selection screen
@@ -125,6 +154,20 @@ export function MainMenu({
         <p style={styles.subtitle}>Wordscapes-style Crossword Puzzle</p>
 
         <div style={styles.menu}>
+          {/* Continue button (shown if saved progress exists) */}
+          {savedProgress && savedProgress.puzzleIndex > 0 && (
+            <button onClick={onContinueCampaign} style={styles.continueButton}>
+              <span style={styles.buttonIcon}>▶️</span>
+              <div style={styles.buttonContent}>
+                <span style={styles.buttonTitle}>Continue</span>
+                <span style={styles.buttonSubtitle}>
+                  {getAreaNameById(savedProgress.areaId)} • Puzzle{" "}
+                  {savedProgress.puzzleIndex + 1}
+                </span>
+              </div>
+            </button>
+          )}
+
           {/* Campaign button */}
           <button
             onClick={handlePlayCampaign}
@@ -165,7 +208,84 @@ export function MainMenu({
               </span>
             </div>
           </button>
+
+          {/* Reset Progress button (shown if saved progress exists) */}
+          {savedProgress && savedProgress.puzzleIndex > 0 && (
+            <button onClick={handleResetProgress} style={styles.resetButton}>
+              <span style={styles.buttonIcon}>🔄</span>
+              <div style={styles.buttonContent}>
+                <span style={styles.buttonTitle}>Reset Progress</span>
+                <span style={styles.buttonSubtitle}>
+                  Clear all campaign progress
+                </span>
+              </div>
+            </button>
+          )}
         </div>
+
+        {/* Level Select (Debug/Test) */}
+        {campaignAvailable && progress && (
+          <div style={styles.levelSelectContainer}>
+            <button
+              onClick={() => setShowLevelSelect(!showLevelSelect)}
+              style={styles.levelSelectToggle}
+            >
+              <span>{showLevelSelect ? "▼" : "▶"}</span>
+              <span style={{ marginLeft: "8px" }}>Level Select (Test)</span>
+            </button>
+
+            {showLevelSelect && (
+              <div style={styles.levelSelectContent}>
+                {progress.areas.map((area) => {
+                  const areaEmoji = getAreaEmoji(area.id);
+                  const hasAnyPuzzles = area.locations.some(
+                    (loc) => loc.hasPuzzle,
+                  );
+
+                  if (!hasAnyPuzzles) return null;
+
+                  return (
+                    <div key={area.id} style={styles.areaSection}>
+                      <div style={styles.areaSectionHeader}>
+                        <span style={styles.areaSectionEmoji}>{areaEmoji}</span>
+                        <span style={styles.areaSectionName}>{area.name}</span>
+                        <span style={styles.areaSectionCount}>
+                          {area.locations.filter((l) => l.hasPuzzle).length}/
+                          {area.locations.length}
+                        </span>
+                      </div>
+                      <div style={styles.puzzleGrid}>
+                        {area.locations.map((location, idx) => {
+                          if (!location.hasPuzzle) return null;
+
+                          const isComplete = isPuzzleComplete(area.id, idx);
+                          return (
+                            <button
+                              key={idx}
+                              onClick={() => onSelectLevel(area.id, idx)}
+                              style={{
+                                ...styles.puzzleButton,
+                                ...(isComplete
+                                  ? styles.puzzleButtonComplete
+                                  : {}),
+                              }}
+                              title={location.name}
+                            >
+                              {isComplete && (
+                                <span style={styles.checkmark}>✓</span>
+                              )}
+                              <span>{idx + 1}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
 
         <div style={styles.footer}>
           <p style={styles.footerText}>
@@ -243,6 +363,36 @@ const styles: Record<string, React.CSSProperties> = {
   campaignButton: {
     borderColor: "#6C5CE7",
     background: "linear-gradient(135deg, #1E1E1E 0%, #252238 100%)",
+  },
+  continueButton: {
+    backgroundColor: "#2D4A2B",
+    border: "2px solid #4CAF50",
+    color: "#FFFFFF",
+    padding: "20px 24px",
+    borderRadius: "12px",
+    fontSize: "16px",
+    cursor: "pointer",
+    transition: "all 0.2s",
+    display: "flex",
+    alignItems: "center",
+    gap: "16px",
+    textAlign: "left",
+    background: "linear-gradient(135deg, #1E1E1E 0%, #2D4A2B 100%)",
+  },
+  resetButton: {
+    backgroundColor: "#1E1E1E",
+    border: "1px solid #D32F2F",
+    color: "#FFFFFF",
+    padding: "16px 24px",
+    borderRadius: "12px",
+    fontSize: "16px",
+    cursor: "pointer",
+    transition: "all 0.2s",
+    display: "flex",
+    alignItems: "center",
+    gap: "16px",
+    textAlign: "left",
+    opacity: 0.7,
   },
   menuButtonDisabled: {
     opacity: 0.5,
@@ -352,5 +502,93 @@ const styles: Record<string, React.CSSProperties> = {
   areaArrow: {
     fontSize: "20px",
     color: "#6C5CE7",
+  },
+  // Level Select (Debug/Test) styles
+  levelSelectContainer: {
+    marginTop: "32px",
+    marginBottom: "16px",
+    border: "2px dashed #444",
+    borderRadius: "12px",
+    padding: "16px",
+    backgroundColor: "#1A1A1A",
+  },
+  levelSelectToggle: {
+    width: "100%",
+    backgroundColor: "transparent",
+    border: "none",
+    color: "#888",
+    fontSize: "14px",
+    cursor: "pointer",
+    padding: "8px",
+    textAlign: "left",
+    display: "flex",
+    alignItems: "center",
+    fontFamily: "monospace",
+    transition: "color 0.2s",
+  },
+  levelSelectContent: {
+    marginTop: "16px",
+    display: "flex",
+    flexDirection: "column",
+    gap: "16px",
+  },
+  areaSection: {
+    backgroundColor: "#1E1E1E",
+    borderRadius: "8px",
+    padding: "12px",
+    border: "1px solid #2D2D2D",
+  },
+  areaSectionHeader: {
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    marginBottom: "12px",
+    paddingBottom: "8px",
+    borderBottom: "1px solid #2D2D2D",
+  },
+  areaSectionEmoji: {
+    fontSize: "20px",
+  },
+  areaSectionName: {
+    fontSize: "16px",
+    fontWeight: "600",
+    color: "#FFFFFF",
+    flex: 1,
+  },
+  areaSectionCount: {
+    fontSize: "13px",
+    color: "#888",
+    fontFamily: "monospace",
+  },
+  puzzleGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(5, 1fr)",
+    gap: "8px",
+  },
+  puzzleButton: {
+    aspectRatio: "1",
+    backgroundColor: "#2D2D2D",
+    border: "1px solid #444",
+    borderRadius: "6px",
+    color: "#FFFFFF",
+    fontSize: "14px",
+    fontWeight: "600",
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    position: "relative" as const,
+    transition: "all 0.2s",
+  },
+  puzzleButtonComplete: {
+    backgroundColor: "#2D4A2B",
+    borderColor: "#4CAF50",
+  },
+  checkmark: {
+    position: "absolute" as const,
+    top: "2px",
+    right: "2px",
+    fontSize: "10px",
+    color: "#4CAF50",
   },
 };
