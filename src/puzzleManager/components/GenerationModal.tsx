@@ -8,7 +8,8 @@ import type { GenerationRequest } from "../types";
 import type { GeneratorParams } from "../../puzzleGenerator/types";
 import enhancedWordlistData from "../../data/enhanced-wordlist.json";
 
-// Get random letters from enhanced wordlist
+// Get random word from enhanced wordlist, biased toward high fun-score words
+// Uses exponential distribution to strongly favor top-ranked words
 function getRandomLetters(count: number): string {
   const wordsByLength = enhancedWordlistData.wordsByLength as Record<
     string,
@@ -16,7 +17,15 @@ function getRandomLetters(count: number): string {
   >;
   const words = wordsByLength[String(count)] || [];
   if (words.length > 0) {
-    return words[Math.floor(Math.random() * words.length)];
+    // Use exponential distribution to heavily bias toward index 0 (highest fun score)
+    // With scale = length/4, ~63% of picks are from top 25%, ~86% from top 50%
+    const scale = words.length / 4;
+    const rand = Math.random();
+    const exponentialIndex = Math.floor(
+      -Math.log(Math.max(rand, 0.001)) * scale,
+    );
+    const index = Math.min(exponentialIndex, words.length - 1);
+    return words[index];
   }
   return "ABCDEFGH".slice(0, count);
 }
