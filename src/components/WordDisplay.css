@@ -39,3 +39,27 @@
     font-style: normal;
     font-weight: 500;
 }
+
+/* Feedback styles for word display */
+.word-feedback {
+    font-size: clamp(16px, 4vw, 20px);
+    font-weight: bold;
+    color: white;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.word-feedback.correct {
+    background: linear-gradient(135deg, #4caf50 0%, #8bc34a 100%);
+}
+
+.word-feedback.incorrect {
+    background: linear-gradient(135deg, #f44336 0%, #ff5722 100%);
+}
+
+.word-feedback.already {
+    background: linear-gradient(135deg, #ff9800 0%, #ffc107 100%);
+}
+
+.word-feedback.bonus {
+    background: linear-gradient(135deg, #9c27b0 0%, #e91e63 100%);
+}

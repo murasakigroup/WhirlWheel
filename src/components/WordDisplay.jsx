@@ -13,8 +13,8 @@ function WordDisplay({ selectedLetters, feedback }) {
   let className = "word-box";
 
   if (feedback) {
-    // Show feedback message
-    className += ` feedback ${feedback}`;
+    // Show feedback message (use word-feedback class to avoid fixed positioning from App.css)
+    className += ` word-feedback ${feedback}`;
     if (feedback === "correct") content = "Correct!";
     else if (feedback === "bonus") content = "Bonus word!";
     else if (feedback === "incorrect") content = "Not a word";
