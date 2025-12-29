@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import "./App.css";
 import { puzzles as quickPlayPuzzles } from "./data/puzzles";
 import {
@@ -12,6 +12,7 @@ import WordDisplay from "./components/WordDisplay";
 import CrosswordGrid from "./components/CrosswordGrid";
 import { MainMenu } from "./components/MainMenu";
 import PuzzleManager from "./puzzleManager";
+import bonusDictionary from "./data/bonusDictionary.json";
 
 function App() {
   // Navigation state
@@ -29,6 +30,9 @@ function App() {
   const [shuffledLetters, setShuffledLetters] = useState([]);
 
   const currentPuzzle = puzzles[currentPuzzleIndex];
+
+  // Create a Set for fast dictionary lookup (only once)
+  const bonusDictionarySet = useMemo(() => new Set(bonusDictionary), []);
 
   // Get all valid words (grid words + bonus words)
   const allValidWords = currentPuzzle
@@ -81,10 +85,11 @@ function App() {
       (gw) => gw.word.toUpperCase() === word,
     );
 
-    // Check if it's a bonus word
-    const isBonusWord = (currentPuzzle.bonusWords || []).some(
-      (bw) => bw.toUpperCase() === word,
-    );
+    // Check if it's a bonus word (from puzzle list OR comprehensive dictionary)
+    const isBonusWord =
+      (currentPuzzle.bonusWords || []).some(
+        (bw) => bw.toUpperCase() === word,
+      ) || bonusDictionarySet.has(word);
 
     if (isGridWord) {
       setFoundWords([...foundWords, word]);
