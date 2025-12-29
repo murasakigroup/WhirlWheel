@@ -28,6 +28,7 @@ function App() {
   const [bonusWordsFound, setBonusWordsFound] = useState([]);
   const [feedback, setFeedback] = useState(null);
   const [shuffledLetters, setShuffledLetters] = useState([]);
+  const [showBonusPopup, setShowBonusPopup] = useState(false);
 
   const currentPuzzle = puzzles[currentPuzzleIndex];
 
@@ -383,19 +384,140 @@ function App() {
             <>
               Puzzle {currentPuzzleIndex + 1}/{puzzles.length} •{" "}
               {foundWords.length}/{currentPuzzle.gridWords.length} words
-              {bonusWordsFound.length > 0 &&
-                ` • ${bonusWordsFound.length} bonus`}
+              {bonusWordsFound.length > 0 && (
+                <>
+                  {" • "}
+                  <span
+                    onClick={() => setShowBonusPopup(true)}
+                    style={{ cursor: "pointer", textDecoration: "underline" }}
+                  >
+                    {bonusWordsFound.length} bonus
+                  </span>
+                </>
+              )}
             </>
           ) : (
             <>
               Level {currentPuzzleIndex + 1} • {foundWords.length}/
               {currentPuzzle.gridWords.length} words
-              {bonusWordsFound.length > 0 &&
-                ` • ${bonusWordsFound.length} bonus`}
+              {bonusWordsFound.length > 0 && (
+                <>
+                  {" • "}
+                  <span
+                    onClick={() => setShowBonusPopup(true)}
+                    style={{ cursor: "pointer", textDecoration: "underline" }}
+                  >
+                    {bonusWordsFound.length} bonus
+                  </span>
+                </>
+              )}
             </>
           )}
         </p>
       </div>
+
+      {/* Bonus Words Popup */}
+      {showBonusPopup && (
+        <div
+          className="modal-backdrop"
+          onClick={() => setShowBonusPopup(false)}
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(0, 0, 0, 0.7)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 2000,
+            backdropFilter: "blur(4px)",
+          }}
+        >
+          <div
+            className="modal-content"
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              backgroundColor: "white",
+              borderRadius: "16px",
+              padding: "24px",
+              maxWidth: "400px",
+              width: "90%",
+              maxHeight: "80vh",
+              overflow: "auto",
+              boxShadow: "0 8px 32px rgba(0, 0, 0, 0.3)",
+              position: "relative",
+            }}
+          >
+            <button
+              onClick={() => setShowBonusPopup(false)}
+              style={{
+                position: "absolute",
+                top: "12px",
+                right: "12px",
+                background: "none",
+                border: "none",
+                fontSize: "24px",
+                cursor: "pointer",
+                color: "#666",
+                width: "32px",
+                height: "32px",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                borderRadius: "50%",
+                transition: "all 0.2s ease",
+              }}
+              onMouseOver={(e) =>
+                (e.currentTarget.style.backgroundColor = "#f0f0f0")
+              }
+              onMouseOut={(e) =>
+                (e.currentTarget.style.backgroundColor = "transparent")
+              }
+            >
+              ✕
+            </button>
+            <h2
+              style={{
+                marginTop: 0,
+                marginBottom: "20px",
+                color: "#333",
+                fontSize: "24px",
+                textAlign: "center",
+              }}
+            >
+              Bonus Words Found
+            </h2>
+            <div
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: "8px",
+                justifyContent: "center",
+              }}
+            >
+              {bonusWordsFound.map((word, index) => (
+                <div
+                  key={index}
+                  style={{
+                    background:
+                      "linear-gradient(135deg, #9c27b0 0%, #e91e63 100%)",
+                    color: "white",
+                    padding: "8px 16px",
+                    borderRadius: "20px",
+                    fontSize: "14px",
+                    fontWeight: "600",
+                    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
+                  }}
+                >
+                  {word}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
