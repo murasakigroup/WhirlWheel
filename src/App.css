@@ -41,9 +41,9 @@
     min-height: 0;
 }
 
-/* Crossword section - 40% of main content */
+/* Crossword section - 45% of main content */
 .crossword-section {
-    flex: 0 0 40%;
+    flex: 0 0 45%;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -65,9 +65,9 @@
     gap: 10px;
 }
 
-/* Wheel section - 50% of main content (remaining space) */
+/* Wheel section - 45% of main content (remaining space) */
 .wheel-section {
-    flex: 0 0 50%;
+    flex: 0 0 45%;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -229,7 +229,7 @@
     min-height: 60px;
     flex-shrink: 0;
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
     padding: 0 16px;
     z-index: 100;

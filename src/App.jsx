@@ -381,8 +381,11 @@ function App() {
         backgroundRepeat: "no-repeat",
       }}
     >
-      {/* Header - Area and Location in one line - Fixed 60px */}
+      {/* Header - Back button, Area and Location - Fixed 60px */}
       <div className="game-header">
+        <button className="back-button" onClick={handleBackToMenu}>
+          ← Back
+        </button>
         {gameMode === "campaign" && currentPuzzle.locationName ? (
           <>
             <span className="header-area">{currentPuzzle.areaName}</span>
@@ -391,7 +394,10 @@ function App() {
             </span>
           </>
         ) : (
-          <div />
+          <>
+            <span className="header-area"></span>
+            <span className="header-location"></span>
+          </>
         )}
       </div>
 
@@ -443,11 +449,8 @@ function App() {
         </div>
       </div>
 
-      {/* Footer with back button and progress - Fixed 60px */}
+      {/* Footer with centered progress - Fixed 60px */}
       <div className="game-footer">
-        <button className="back-button" onClick={handleBackToMenu}>
-          ← Menu
-        </button>
         <p className="level-indicator">
           {gameMode === "campaign" ? (
             <>

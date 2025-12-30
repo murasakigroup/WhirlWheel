@@ -60,22 +60,24 @@ function CrosswordGrid({ gridWords, foundWords, themeColor = "#4caf50" }) {
   }, [gridWords, foundWords]);
 
   // Calculate cell size based on grid dimensions and available space
-  // Max grid width is ~85vw or 320px, max height is ~45vh
+  // Grid must maintain 1:1 aspect ratio and fit within 45% vertical space
   const cellSize = useMemo(() => {
-    const maxGridWidth = Math.min(window.innerWidth * 0.85, 320);
-    const maxGridHeight = window.innerHeight * 0.45;
+    const maxGridWidth = Math.min(window.innerWidth * 0.85, 400);
+    const maxGridHeight = window.innerHeight * 0.4; // Use 40% to leave room for padding
     const gap = 3;
     const padding = 16;
 
     const availableWidth = maxGridWidth - padding;
     const availableHeight = maxGridHeight - padding;
 
-    const cellByWidth = (availableWidth - gap * (cols - 1)) / cols;
-    const cellByHeight = (availableHeight - gap * (rows - 1)) / rows;
+    // Calculate based on larger dimension to maintain square grid
+    const maxDim = Math.max(rows, cols);
+    const cellByWidth = (availableWidth - gap * (maxDim - 1)) / maxDim;
+    const cellByHeight = (availableHeight - gap * (maxDim - 1)) / maxDim;
 
-    // Use the smaller of the two, with min/max constraints
+    // Use the smaller to ensure it fits, with min/max constraints
     const size = Math.min(cellByWidth, cellByHeight);
-    return Math.max(28, Math.min(60, size));
+    return Math.max(24, Math.min(60, size));
   }, [rows, cols]);
 
   // Determine if a cell should show as found (any of its words is found)
