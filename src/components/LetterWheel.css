@@ -9,9 +9,9 @@
 
 .wheel-container {
     position: relative;
-    width: min(85%, 300px);
+    width: min(90%, min(90vh, 400px));
     aspect-ratio: 1;
-    max-height: 85%;
+    max-height: 90%;
     display: flex;
     justify-content: center;
     align-items: center;

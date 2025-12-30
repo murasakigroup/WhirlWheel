@@ -408,40 +408,38 @@ function App() {
 
         {/* Word Display - 10% of main */}
         <div className="word-section">
+          <button
+            className="word-section-button shuffle-btn"
+            onClick={handleShuffle}
+            title="Shuffle"
+          >
+            <Shuffle size={22} />
+          </button>
+
           <WordDisplay
             selectedLetters={currentSelection}
             feedback={feedback}
             themeColor={getAreaThemeColor(getCurrentArea())}
             onSubmit={handleSubmit}
           />
+
+          <button
+            className="word-section-button clear-btn"
+            onClick={handleClear}
+            title="Clear"
+          >
+            <span>✕</span>
+          </button>
         </div>
 
         {/* Letter Wheel - 50% of main (remaining space) */}
         <div className="wheel-section">
-          <div className="wheel-wrapper">
-            <button
-              className="wheel-button shuffle-btn"
-              onClick={handleShuffle}
-              title="Shuffle"
-            >
-              <Shuffle size={22} />
-            </button>
-
-            <LetterWheel
-              letters={shuffledLetters}
-              selectedLetters={currentSelection}
-              onLetterClick={handleLetterClick}
-              themeColor={getAreaThemeColor(getCurrentArea())}
-            />
-
-            <button
-              className="wheel-button clear-btn"
-              onClick={handleClear}
-              title="Clear"
-            >
-              <span>✕</span>
-            </button>
-          </div>
+          <LetterWheel
+            letters={shuffledLetters}
+            selectedLetters={currentSelection}
+            onLetterClick={handleLetterClick}
+            themeColor={getAreaThemeColor(getCurrentArea())}
+          />
         </div>
       </div>
 
