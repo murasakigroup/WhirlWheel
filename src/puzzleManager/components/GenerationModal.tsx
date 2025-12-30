@@ -3,10 +3,11 @@
  * Modal for configuring puzzle generation parameters
  */
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import type { GenerationRequest } from "../types";
 import type { GeneratorParams } from "../../puzzleGenerator/types";
 import enhancedWordlistData from "../../data/enhanced-wordlist.json";
+import { deduplicateWordsByLetters } from "../../puzzleGenerator/utils";
 
 // Get random word from enhanced wordlist, biased toward high fun-score words
 // Uses exponential distribution to strongly favor top-ranked words
@@ -48,6 +49,18 @@ export function GenerationModal({
 }: GenerationModalProps) {
   const [letters, setLetters] = useState(() => getRandomLetters(letterCount));
   const [seed, setSeed] = useState(() => String(getRandomSeed()));
+
+  // Calculate deduplication stats once
+  const deduplicationStats = useMemo(() => {
+    const wordsArray = Object.entries((enhancedWordlistData as any).words).map(
+      ([word, data]: [string, any]) => ({
+        word,
+        funScore: data.funScore,
+      }),
+    );
+    const result = deduplicateWordsByLetters(wordsArray);
+    return result.stats;
+  }, []);
 
   // Randomize letters
   const randomizeLetters = () => {
@@ -107,6 +120,16 @@ export function GenerationModal({
         </div>
 
         <div style={styles.content}>
+          {/* Deduplication Info */}
+          <div style={styles.infoBox}>
+            <span style={styles.infoIcon}>ℹ️</span>
+            <span style={styles.infoText}>
+              Filtered {deduplicationStats.filtered} anagrams from{" "}
+              {deduplicationStats.original} words → generating from{" "}
+              {deduplicationStats.kept} unique puzzles
+            </span>
+          </div>
+
           {/* Letters */}
           <div style={styles.field}>
             <label style={styles.label}>Letters ({letterCount} letters)</label>
@@ -387,6 +410,25 @@ const styles: Record<string, React.CSSProperties> = {
   },
   content: {
     padding: "20px",
+  },
+  infoBox: {
+    backgroundColor: "#2D2D2D",
+    borderRadius: "8px",
+    padding: "12px 16px",
+    marginBottom: "20px",
+    display: "flex",
+    alignItems: "center",
+    gap: "12px",
+    border: "1px solid #3D3D3D",
+  },
+  infoIcon: {
+    fontSize: "16px",
+    flexShrink: 0,
+  },
+  infoText: {
+    fontSize: "13px",
+    color: "#A0A0A0",
+    lineHeight: "1.5",
   },
   field: {
     marginBottom: "20px",

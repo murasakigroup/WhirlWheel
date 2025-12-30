@@ -8,6 +8,7 @@ import { useGeneration } from "./useGeneration";
 import type { BatchGenerationConfig } from "../components/BatchGenerationModal";
 import type { Area, Generation } from "../types";
 import enhancedWordlistData from "../../data/enhanced-wordlist.json";
+import { deduplicateWordsByLetters } from "../../puzzleGenerator/utils";
 
 // Type for enhanced wordlist structure
 interface EnhancedWordlist {
@@ -30,6 +31,58 @@ interface EnhancedWordlist {
 
 const enhancedWordlist = enhancedWordlistData as EnhancedWordlist;
 
+// Deduplicate words by letter signature to avoid generating similar puzzles
+// Convert words object to array format for deduplication
+const wordsArray = Object.entries(enhancedWordlist.words).map(
+  ([word, data]) => ({
+    word,
+    funScore: data.funScore,
+    subWords: data.subWords,
+    subWordCount: data.subWordCount,
+  }),
+);
+
+const deduplicationResult = deduplicateWordsByLetters(wordsArray);
+console.log(
+  `[Batch Deduplication] Filtered ${deduplicationResult.stats.filtered} anagrams from ${deduplicationResult.stats.original} words → ${deduplicationResult.stats.kept} unique puzzles available`,
+);
+
+// Rebuild enhanced wordlist with filtered words
+const filteredWords: Record<
+  string,
+  { subWords: string[]; subWordCount: number; funScore: number }
+> = {};
+const filteredWordsByLength: Record<string, string[]> = {};
+
+for (const wordObj of deduplicationResult.filteredWords) {
+  filteredWords[wordObj.word] = {
+    subWords: wordObj.subWords,
+    subWordCount: wordObj.subWordCount,
+    funScore: wordObj.funScore,
+  };
+
+  const length = String(wordObj.word.length);
+  if (!filteredWordsByLength[length]) {
+    filteredWordsByLength[length] = [];
+  }
+  filteredWordsByLength[length].push(wordObj.word);
+}
+
+// Sort each length group by fun score (descending) to maintain biased selection
+for (const length in filteredWordsByLength) {
+  filteredWordsByLength[length].sort((a, b) => {
+    const scoreA = filteredWords[a]?.funScore || 0;
+    const scoreB = filteredWords[b]?.funScore || 0;
+    return scoreB - scoreA;
+  });
+}
+
+const filteredEnhancedWordlist = {
+  metadata: enhancedWordlist.metadata,
+  wordsByLength: filteredWordsByLength,
+  words: filteredWords,
+};
+
 /**
  * Select unique words for an area, avoiding duplicates
  * Returns array of letter arrays (e.g., [['C','A','T'], ['D','O','G']])
@@ -40,7 +93,7 @@ function selectUniqueWordsForArea(
   existingWords: Set<string>,
 ): string[][] {
   const countKey = String(letterCount);
-  const wordsForLength = enhancedWordlist.wordsByLength[countKey] || [];
+  const wordsForLength = filteredEnhancedWordlist.wordsByLength[countKey] || [];
 
   if (wordsForLength.length === 0) {
     console.warn(`No words found for length ${letterCount}`);

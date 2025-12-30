@@ -8,6 +8,7 @@ import { generatePuzzle } from "../../puzzleGenerator";
 import { usePuzzleHash } from "./usePuzzleHash";
 import type { GenerationRequest, Generation, CuratedPuzzle } from "../types";
 import enhancedWordlistData from "../../data/enhanced-wordlist.json";
+import { deduplicateWordsByLetters } from "../../puzzleGenerator/utils";
 
 // Type for enhanced wordlist structure
 interface EnhancedWordData {
@@ -29,9 +30,58 @@ interface EnhancedWordlist {
 
 const enhancedWordlist = enhancedWordlistData as EnhancedWordlist;
 
-// Create dictionary from enhanced wordlist (all sub-words are valid)
+// Deduplicate words by letter signature to avoid generating similar puzzles
+// Convert words object to array format for deduplication
+const wordsArray = Object.entries(enhancedWordlist.words).map(
+  ([word, data]) => ({
+    word,
+    funScore: data.funScore,
+    subWords: data.subWords,
+    subWordCount: data.subWordCount,
+  }),
+);
+
+const deduplicationResult = deduplicateWordsByLetters(wordsArray);
+console.log(
+  `[Deduplication] Filtered ${deduplicationResult.stats.filtered} anagrams from ${deduplicationResult.stats.original} words → ${deduplicationResult.stats.kept} unique puzzles available`,
+);
+
+// Rebuild enhanced wordlist with filtered words
+const filteredWords: Record<string, EnhancedWordData> = {};
+const filteredWordsByLength: Record<string, string[]> = {};
+
+for (const wordObj of deduplicationResult.filteredWords) {
+  filteredWords[wordObj.word] = {
+    subWords: wordObj.subWords,
+    subWordCount: wordObj.subWordCount,
+    funScore: wordObj.funScore,
+  };
+
+  const length = String(wordObj.word.length);
+  if (!filteredWordsByLength[length]) {
+    filteredWordsByLength[length] = [];
+  }
+  filteredWordsByLength[length].push(wordObj.word);
+}
+
+// Sort each length group by fun score (descending) to maintain biased selection
+for (const length in filteredWordsByLength) {
+  filteredWordsByLength[length].sort((a, b) => {
+    const scoreA = filteredWords[a]?.funScore || 0;
+    const scoreB = filteredWords[b]?.funScore || 0;
+    return scoreB - scoreA;
+  });
+}
+
+const filteredEnhancedWordlist = {
+  metadata: enhancedWordlist.metadata,
+  wordsByLength: filteredWordsByLength,
+  words: filteredWords,
+};
+
+// Create dictionary from filtered enhanced wordlist (all sub-words are valid)
 const allValidWords = new Set<string>();
-for (const wordData of Object.values(enhancedWordlist.words)) {
+for (const wordData of Object.values(filteredEnhancedWordlist.words)) {
   for (const subWord of wordData.subWords) {
     allValidWords.add(subWord.toUpperCase());
   }
@@ -39,13 +89,13 @@ for (const wordData of Object.values(enhancedWordlist.words)) {
 const dictionary = allValidWords;
 
 /**
- * Generate random letters by picking a random word from the enhanced wordlist
+ * Generate random letters by picking a random word from the filtered enhanced wordlist
  * Words are pre-sorted by fun score, so we bias heavily toward interesting words
  * Uses exponential decay to strongly favor top-ranked words
  */
 function generateRandomLetters(count: number): string[] {
   const countKey = String(count);
-  const wordsForLength = enhancedWordlist.wordsByLength[countKey];
+  const wordsForLength = filteredEnhancedWordlist.wordsByLength[countKey];
 
   if (wordsForLength?.length > 0) {
     // Use exponential distribution to heavily bias toward index 0 (highest fun score)
@@ -69,10 +119,10 @@ function generateRandomLetters(count: number): string[] {
 }
 
 /**
- * Get fun score for a word from enhanced wordlist
+ * Get fun score for a word from filtered enhanced wordlist
  */
 function getFunScore(word: string): number {
-  const wordData = enhancedWordlist.words[word.toUpperCase()];
+  const wordData = filteredEnhancedWordlist.words[word.toUpperCase()];
   return wordData?.funScore || 0;
 }
 
@@ -81,7 +131,7 @@ function getFunScore(word: string): number {
  */
 function getPreComputedSubWords(letters: string[]): string[] | null {
   const word = letters.join("").toUpperCase();
-  const wordData = enhancedWordlist.words[word];
+  const wordData = filteredEnhancedWordlist.words[word];
   return wordData?.subWords || null;
 }
 

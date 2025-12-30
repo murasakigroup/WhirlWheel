@@ -3,8 +3,10 @@
  * Modal for configuring batch puzzle generation across all areas
  */
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import type { Area } from "../types";
+import enhancedWordlistData from "../../data/enhanced-wordlist.json";
+import { deduplicateWordsByLetters } from "../../puzzleGenerator/utils";
 
 export interface BatchGenerationConfig {
   wordsPerArea: number;
@@ -28,6 +30,18 @@ export function BatchGenerationModal({
   const [wordsPerArea, setWordsPerArea] = useState(5);
   const [puzzlesPerWord, setPuzzlesPerWord] = useState(3);
   const [autoAssign, setAutoAssign] = useState(true);
+
+  // Calculate deduplication stats once
+  const deduplicationStats = useMemo(() => {
+    const wordsArray = Object.entries((enhancedWordlistData as any).words).map(
+      ([word, data]: [string, any]) => ({
+        word,
+        funScore: data.funScore,
+      }),
+    );
+    const result = deduplicateWordsByLetters(wordsArray);
+    return result.stats;
+  }, []);
 
   const handleStart = () => {
     onStart({
@@ -57,6 +71,16 @@ export function BatchGenerationModal({
             Generate puzzle candidates for each area using multiple source
             words.
           </p>
+
+          {/* Deduplication Info */}
+          <div style={styles.infoBox}>
+            <span style={styles.infoIcon}>ℹ️</span>
+            <span style={styles.infoText}>
+              Filtered {deduplicationStats.filtered} anagrams from{" "}
+              {deduplicationStats.original} words → generating from{" "}
+              {deduplicationStats.kept} unique puzzles
+            </span>
+          </div>
 
           <div style={styles.divider} />
 
@@ -206,6 +230,26 @@ const styles: Record<string, React.CSSProperties> = {
   },
   content: {
     padding: "20px",
+  },
+  infoBox: {
+    backgroundColor: "#2D2D2D",
+    borderRadius: "8px",
+    padding: "12px 16px",
+    marginTop: "12px",
+    marginBottom: "12px",
+    display: "flex",
+    alignItems: "center",
+    gap: "12px",
+    border: "1px solid #3D3D3D",
+  },
+  infoIcon: {
+    fontSize: "16px",
+    flexShrink: 0,
+  },
+  infoText: {
+    fontSize: "13px",
+    color: "#A0A0A0",
+    lineHeight: "1.5",
   },
   description: {
     margin: "0 0 8px 0",
