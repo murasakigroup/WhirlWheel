@@ -5,19 +5,18 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    box-sizing: border-box;
 }
 
 .wheel-container {
-    /* Square wheel - size based on the smaller of width or height */
     position: relative;
-    width: min(100%, 100%);
-    height: 100%;
-    max-width: 100%;
-    max-height: 100%;
-    aspect-ratio: 1 / 1;
     display: flex;
     justify-content: center;
     align-items: center;
+    /* Force square: height-based since vertical space is limited */
+    height: 95%;
+    aspect-ratio: 1 / 1;
+    max-width: 95%;
     /* Frosted glass wheel */
     background: rgba(255, 255, 255, 0.4);
     backdrop-filter: blur(10px);

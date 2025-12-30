@@ -36,11 +36,14 @@ function LetterWheel({
     return 0.38; // Default for 6+
   };
 
-  // Update radius based on container size and letter count
+  // Update radius based on container size (use smaller of width/height for square)
   useEffect(() => {
     const updateRadius = () => {
       if (containerRef.current) {
-        const containerSize = containerRef.current.offsetWidth;
+        // Use the smaller dimension to ensure wheel is a perfect circle
+        const width = containerRef.current.offsetWidth;
+        const height = containerRef.current.offsetHeight;
+        const containerSize = Math.min(width, height);
         const multiplier = getRadiusMultiplier(letters.length);
         setRadius(containerSize * multiplier);
       }
