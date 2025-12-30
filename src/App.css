@@ -32,6 +32,58 @@
     z-index: 1;
 }
 
+/* Game header - Fixed 60px height */
+.game-header {
+    height: 60px;
+    min-height: 60px;
+    flex-shrink: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 16px;
+    z-index: 100;
+    gap: 12px;
+}
+
+.header-area {
+    font-size: 18px;
+    font-weight: 700;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+    flex: 1;
+    text-align: center;
+}
+
+.header-location {
+    font-size: 18px;
+    font-weight: 700;
+    color: white;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+    flex: 1;
+    text-align: right;
+}
+
+/* Back button - in header */
+.back-button {
+    background: rgba(0, 0, 0, 0.5);
+    border: 2px solid white;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.back-button:hover {
+    background: rgba(0, 0, 0, 0.65);
+}
+
 /* Main content area - Flexible, fills remaining space */
 .game-main {
     flex: 1;
@@ -45,12 +97,10 @@
 .crossword-section {
     flex: 0 0 45%;
     display: flex;
-    flex-direction: column;
     justify-content: center;
     align-items: center;
-    overflow: visible;
+    overflow: hidden;
     min-height: 0;
-    position: relative;
 }
 
 /* Word display section - 10% of main content */
@@ -58,25 +108,60 @@
     flex: 0 0 10%;
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
     overflow: hidden;
     min-height: 0;
-    padding: 0 20px;
-    gap: 10px;
+    padding: 0 16px;
+    gap: 16px;
 }
 
-/* Wheel section - 45% of main content (remaining space) */
+/* Wheel section - 45% of main content */
 .wheel-section {
     flex: 0 0 45%;
     display: flex;
     justify-content: center;
     align-items: center;
-    overflow: visible;
+    overflow: hidden;
     min-height: 0;
-    position: relative;
-    padding: 10px;
-    box-sizing: border-box;
+}
+
+/* Game footer - Fixed 60px height */
+.game-footer {
+    height: 60px;
+    min-height: 60px;
+    flex-shrink: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0 16px;
+    z-index: 100;
+}
+
+/* Word section buttons (shuffle/clear) */
+.word-section-button {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 2px solid white;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.word-section-button:hover {
+    background: rgba(0, 0, 0, 0.65);
+    transform: scale(1.1);
+}
+
+.word-section-button:active {
+    transform: scale(0.95);
 }
 
 /* Feedback toast */
@@ -125,33 +210,7 @@
     }
 }
 
-/* Word section buttons (shuffle/clear) */
-.word-section-button {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    border: 2px solid white;
-    background: rgba(0, 0, 0, 0.5);
-    color: white;
-    font-size: 20px;
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transition: all 0.2s ease;
-    flex-shrink: 0;
-}
-
-.word-section-button:hover {
-    background: rgba(0, 0, 0, 0.65);
-    transform: scale(1.1);
-}
-
-.word-section-button:active {
-    transform: scale(0.95);
-}
-
-/* Bottom controls */
+/* Bottom controls (legacy) */
 .bottom-controls {
     padding: 10px;
     display: flex;
@@ -197,67 +256,4 @@
     font-weight: 600;
     margin: 0;
     text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.8);
-}
-
-/* Game header - Fixed 60px height */
-.game-header {
-    height: 60px;
-    min-height: 60px;
-    flex-shrink: 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0 16px;
-    z-index: 100;
-    gap: 16px;
-}
-
-.header-area {
-    font-size: 18px;
-    font-weight: 700;
-    color: white;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
-}
-
-.header-location {
-    font-size: 18px;
-    font-weight: 700;
-    color: white;
-    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
-}
-
-/* Game footer - Fixed 60px height */
-.game-footer {
-    height: 60px;
-    min-height: 60px;
-    flex-shrink: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 0 16px;
-    z-index: 100;
-}
-
-/* Back button - in header */
-.back-button {
-    background: rgba(0, 0, 0, 0.5);
-    border: 2px solid white;
-    color: white;
-    padding: 8px 16px;
-    border-radius: var(--radius-lg);
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: var(--transition-normal);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    white-space: nowrap;
-    flex-shrink: 0;
-}
-
-.back-button:hover {
-    background: rgba(0, 0, 0, 0.65);
 }
