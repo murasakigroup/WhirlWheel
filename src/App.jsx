@@ -381,58 +381,71 @@ function App() {
         backgroundRepeat: "no-repeat",
       }}
     >
-      {/* Header - Area and Location in one line */}
-      {gameMode === "campaign" && currentPuzzle.locationName && (
-        <div className="game-header">
-          <span className="header-area">{currentPuzzle.areaName}</span>
-          <span className="header-location">{currentPuzzle.locationName}</span>
-        </div>
-      )}
+      {/* Header - Area and Location in one line - Fixed 60px */}
+      <div className="game-header">
+        {gameMode === "campaign" && currentPuzzle.locationName ? (
+          <>
+            <span className="header-area">{currentPuzzle.areaName}</span>
+            <span className="header-location">
+              {currentPuzzle.locationName}
+            </span>
+          </>
+        ) : (
+          <div />
+        )}
+      </div>
 
-      {/* Crossword Grid at top */}
-      <CrosswordGrid
-        gridWords={currentPuzzle.gridWords}
-        foundWords={foundWords}
-        themeColor={getAreaThemeColor(getCurrentArea())}
-      />
-
-      {/* Current word display - tap to submit */}
-      <WordDisplay
-        selectedLetters={currentSelection}
-        feedback={feedback}
-        themeColor={getAreaThemeColor(getCurrentArea())}
-        onSubmit={handleSubmit}
-      />
-
-      {/* Letter wheel section with positioned buttons */}
-      <div className="wheel-section">
-        <div className="wheel-wrapper">
-          <button
-            className="wheel-button shuffle-btn"
-            onClick={handleShuffle}
-            title="Shuffle"
-          >
-            <Shuffle size={22} />
-          </button>
-
-          <LetterWheel
-            letters={shuffledLetters}
-            selectedLetters={currentSelection}
-            onLetterClick={handleLetterClick}
+      {/* Main content area - Flexible */}
+      <div className="game-main">
+        {/* Crossword Grid - 40% of main */}
+        <div className="crossword-section">
+          <CrosswordGrid
+            gridWords={currentPuzzle.gridWords}
+            foundWords={foundWords}
             themeColor={getAreaThemeColor(getCurrentArea())}
           />
+        </div>
 
-          <button
-            className="wheel-button clear-btn"
-            onClick={handleClear}
-            title="Clear"
-          >
-            <span>✕</span>
-          </button>
+        {/* Word Display - 10% of main */}
+        <div className="word-section">
+          <WordDisplay
+            selectedLetters={currentSelection}
+            feedback={feedback}
+            themeColor={getAreaThemeColor(getCurrentArea())}
+            onSubmit={handleSubmit}
+          />
+        </div>
+
+        {/* Letter Wheel - 50% of main (remaining space) */}
+        <div className="wheel-section">
+          <div className="wheel-wrapper">
+            <button
+              className="wheel-button shuffle-btn"
+              onClick={handleShuffle}
+              title="Shuffle"
+            >
+              <Shuffle size={22} />
+            </button>
+
+            <LetterWheel
+              letters={shuffledLetters}
+              selectedLetters={currentSelection}
+              onLetterClick={handleLetterClick}
+              themeColor={getAreaThemeColor(getCurrentArea())}
+            />
+
+            <button
+              className="wheel-button clear-btn"
+              onClick={handleClear}
+              title="Clear"
+            >
+              <span>✕</span>
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Footer with back button and progress */}
+      {/* Footer with back button and progress - Fixed 60px */}
       <div className="game-footer">
         <button className="back-button" onClick={handleBackToMenu}>
           ← Menu
