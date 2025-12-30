@@ -7,7 +7,8 @@
     height: 100%;
     box-sizing: border-box;
     padding: 10px;
-    overflow: hidden;
+    overflow: visible;
+    position: relative;
 }
 
 .grid-container {
@@ -17,12 +18,11 @@
     background: rgba(0, 0, 0, 0.2);
     border-radius: 12px;
     backdrop-filter: blur(4px);
-    aspect-ratio: 1 / 1;
+    width: fit-content;
+    height: fit-content;
     max-width: 100%;
     max-height: 100%;
-    width: auto;
-    height: auto;
-    object-fit: contain;
+    box-sizing: border-box;
 }
 
 .grid-cell {

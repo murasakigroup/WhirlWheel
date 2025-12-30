@@ -48,8 +48,9 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    overflow: hidden;
+    overflow: visible;
     min-height: 0;
+    position: relative;
 }
 
 /* Word display section - 10% of main content */
@@ -71,8 +72,11 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    overflow: hidden;
+    overflow: visible;
     min-height: 0;
+    position: relative;
+    padding: 10px;
+    box-sizing: border-box;
 }
 
 /* Feedback toast */
@@ -205,6 +209,7 @@
     align-items: center;
     padding: 0 16px;
     z-index: 100;
+    gap: 16px;
 }
 
 .header-area {
@@ -235,7 +240,7 @@
     z-index: 100;
 }
 
-/* Back button - now in footer */
+/* Back button - in header */
 .back-button {
     background: rgba(0, 0, 0, 0.5);
     border: 2px solid white;
@@ -246,6 +251,11 @@
     font-weight: 600;
     cursor: pointer;
     transition: var(--transition-normal);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .back-button:hover {
