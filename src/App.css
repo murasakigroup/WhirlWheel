@@ -67,8 +67,8 @@
     text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
 }
 
-/* Back button - in header */
-.back-button {
+/* Back button - in game header (more specific to override MainMenu.css) */
+.game-header .back-button {
     background: rgba(0, 0, 0, 0.5);
     border: 2px solid white;
     color: white;
@@ -86,9 +86,12 @@
     line-height: 1;
     height: 36px;
     box-sizing: border-box;
+    /* Override MainMenu.css */
+    align-self: center;
+    margin-bottom: 0;
 }
 
-.back-button:hover {
+.game-header .back-button:hover {
     background: rgba(0, 0, 0, 0.65);
 }
 
