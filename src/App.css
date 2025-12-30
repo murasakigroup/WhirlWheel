@@ -80,6 +80,12 @@
     transition: all 0.2s ease;
     white-space: nowrap;
     flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    height: 36px;
+    box-sizing: border-box;
 }
 
 .back-button:hover {
