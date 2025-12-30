@@ -6,6 +6,7 @@
 import { useState, useEffect, useCallback } from "react";
 import type { GameData, Area, Generation } from "../types";
 import { INITIAL_AREAS } from "../data/scaffold";
+import { loadDefaultCampaign } from "../../data/campaignLoader";
 
 const STORAGE_KEY = "puzzle-manager-data";
 
@@ -181,6 +182,12 @@ export function useGameData() {
     setGameData(initialData);
   }, []);
 
+  // Reset to default campaign
+  const resetToDefault = useCallback(() => {
+    const defaultData = loadDefaultCampaign();
+    setGameData(defaultData);
+  }, []);
+
   // Auto-fill empty slots with generations (assigns first puzzle from each)
   const autoFill = useCallback(() => {
     setGameData((prev) => {
@@ -245,5 +252,6 @@ export function useGameData() {
     exportData,
     importData,
     resetData,
+    resetToDefault,
   };
 }

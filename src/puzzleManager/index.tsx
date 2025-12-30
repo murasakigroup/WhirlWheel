@@ -33,6 +33,7 @@ export function PuzzleManager({ onBack }: PuzzleManagerProps = {}) {
     selectPuzzleForLocation,
     autoFill,
     exportData,
+    resetToDefault,
   } = useGameData();
   const { generate } = useGeneration();
   const {
@@ -289,6 +290,7 @@ export function PuzzleManager({ onBack }: PuzzleManagerProps = {}) {
         onAreaClick={handleAreaClick}
         onLocationClick={handleLocationClick}
         onExport={exportData}
+        onResetToDefault={resetToDefault}
         onBack={onBack}
         batchProgress={batchProgress}
       />

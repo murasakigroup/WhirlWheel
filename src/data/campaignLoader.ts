@@ -9,6 +9,7 @@ import type {
   Area,
   Location,
 } from "../puzzleManager/types";
+import defaultCampaignData from "./defaultCampaign.json";
 
 // Game puzzle format (what App.jsx expects)
 export interface GamePuzzle {
@@ -124,7 +125,15 @@ const AREA_FALLBACK_BACKGROUNDS: Record<string, string> = {
 const STORAGE_KEY = "puzzle-manager-data";
 
 /**
+ * Load the default campaign data from the bundled JSON file
+ */
+export function loadDefaultCampaign(): GameData {
+  return defaultCampaignData as GameData;
+}
+
+/**
  * Load campaign data from localStorage
+ * If no data exists, seeds from default campaign
  */
 export function loadCampaignData(): GameData | null {
   try {
@@ -132,6 +141,11 @@ export function loadCampaignData(): GameData | null {
     if (stored) {
       return JSON.parse(stored);
     }
+
+    // No data in localStorage - seed from default campaign
+    const defaultData = loadDefaultCampaign();
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultData));
+    return defaultData;
   } catch (error) {
     console.error("Failed to load campaign data:", error);
   }

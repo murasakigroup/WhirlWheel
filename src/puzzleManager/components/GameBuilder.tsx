@@ -15,6 +15,7 @@ interface GameBuilderProps {
   onAreaClick: (areaId: string) => void;
   onLocationClick: (locationId: string) => void;
   onExport: () => void;
+  onResetToDefault: () => void;
   onBack?: () => void;
   batchProgress: BatchProgress | null;
 }
@@ -27,6 +28,7 @@ export function GameBuilder({
   onAreaClick,
   onLocationClick,
   onExport,
+  onResetToDefault,
   onBack,
   batchProgress,
 }: GameBuilderProps) {
@@ -47,6 +49,16 @@ export function GameBuilder({
   );
 
   const isGenerating = batchProgress?.isRunning ?? false;
+
+  const handleResetToDefault = () => {
+    if (
+      window.confirm(
+        "Reset to default campaign? This will replace all current data with the default campaign. This action cannot be undone.",
+      )
+    ) {
+      onResetToDefault();
+    }
+  };
 
   return (
     <div style={styles.container}>
@@ -79,6 +91,16 @@ export function GameBuilder({
             disabled={isGenerating}
           >
             🎲 Auto-fill
+          </button>
+          <button
+            onClick={handleResetToDefault}
+            style={{
+              ...styles.resetButton,
+              ...(isGenerating ? styles.buttonDisabled : {}),
+            }}
+            disabled={isGenerating}
+          >
+            🔄 Reset to Default
           </button>
           <button onClick={onExport} style={styles.exportButton}>
             📤 Export
@@ -253,6 +275,16 @@ const styles: Record<string, React.CSSProperties> = {
   },
   autoFillButton: {
     backgroundColor: "#6C5CE7",
+    border: "none",
+    color: "#FFFFFF",
+    padding: "10px 16px",
+    borderRadius: "8px",
+    fontSize: "14px",
+    fontWeight: "600",
+    cursor: "pointer",
+  },
+  resetButton: {
+    backgroundColor: "#FF9F43",
     border: "none",
     color: "#FFFFFF",
     padding: "10px 16px",
