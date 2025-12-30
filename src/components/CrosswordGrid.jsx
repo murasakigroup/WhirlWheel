@@ -68,7 +68,7 @@ function CrosswordGrid({ gridWords, foundWords, themeColor = "#4caf50" }) {
     const sectionHeight = mainContentHeight * 0.45;
 
     const maxGridWidth = window.innerWidth * 0.9;
-    const maxGridHeight = sectionHeight * 0.9; // Leave some padding
+    const maxGridHeight = sectionHeight * 0.85; // Use more available space
     const gap = 3;
     const padding = 16;
 
@@ -84,7 +84,13 @@ function CrosswordGrid({ gridWords, foundWords, themeColor = "#4caf50" }) {
 
     // Use the smaller to ensure it fits
     const size = Math.min(cellByWidth, cellByHeight);
-    return Math.max(18, Math.min(45, size));
+
+    // Scale limits based on grid size - smaller grids get larger cells
+    const maxDim = Math.max(rows, cols);
+    const minSize = maxDim <= 4 ? 45 : maxDim <= 6 ? 30 : 20;
+    const maxSize = maxDim <= 4 ? 80 : maxDim <= 6 ? 60 : 50;
+
+    return Math.max(minSize, Math.min(maxSize, size));
   }, [rows, cols]);
 
   // Determine if a cell should show as found (any of its words is found)
